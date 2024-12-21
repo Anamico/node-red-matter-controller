@@ -1,0 +1,36 @@
+{
+  "name": "node-red-matter-controller",
+  "version": "0.1.0",
+  "description": "Matter Device Controller for Node-RED",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sammachin/node-red-matter-controller.git"
+  },
+  "keywords": [
+    "Node-RED"
+  ],
+  "author": "Sam Machin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sammachin/node-red-matter-controller/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "homepage": "https://github.com/sammachin/node-red-matter-controller#readme",
+  "dependencies": {
+    "@matter/main": "^0.11.9",
+    "@project-chip/matter.js": "^0.11.9"
+  },
+  "node-red": {
+    "version": ">=3.0.0",
+    "nodes": {
+      "matter-controller": "controller.js",
+      "matter-manager": "manager.js"
+    }
+  }
+}
