@@ -2,11 +2,31 @@
     RED.nodes.registerType('mattercontroller',{
         category: 'config',
         defaults: {
-            name: {value:""}
-            
+            name: {value:""},
+            networkInterface : {required: true},
+            logLevel: {value: "ERROR"}
         },
         label: function() {
             return this.name||"Controller";
+        },
+        oneditprepare: function(){
+            var nodeid=this.id
+            var selectedInterface = this.networkInterface
+            $.get('_mattercontroller/interfaces', function(r) {
+                let interfaces = document.getElementById('node-config-input-networkInterface');
+                r.forEach(i => {
+                    interfaces.add(new Option(i, i));
+                });
+                console.log(selectedInterface)
+                if (typeof selectedInterface !== 'undefined'){
+                    console.log('defined')
+                    interfaces.value = selectedInterface
+                }
+                
+            })
+            .error(function(e) {
+                console.log(e.status);
+            })
         }
     });
 </script>
@@ -15,6 +35,21 @@
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-networkInterface">Network interface</label>
+        <select type="text" id="node-config-input-networkInterface" style="width:50%;" >
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-logLevel">Log Level</label>
+        <select type="text" id="node-config-input-logLevel" style="width:50%;" >
+            <option value="DEBUG">Debug</option>
+            <option value="INFO">Info</option>
+            <option value="WARN">Warn</option>
+            <option value="ERROR">Error</option>
+            <option value="FATAL">Fatal</option>
+        </select>
     </div>
    
 </script>

@@ -1,0 +1,65 @@
+<script type="text/javascript">
+    RED.nodes.registerType('mattercommand',{
+        category: 'matter',
+        defaults: {
+            name: {value:""},
+            controller: { value: "", type: "mattercontroller", required: true },
+            device: {value:""},
+            endpoint: {value:""},
+            cluster: {value:""},
+            command: {value:""},
+            data: {value:""},
+            dataType: {value:""},
+        },
+        label: function() {
+            return this.name||"Command";
+        },
+        oneditprepare: function() {
+            $('#node-input-data').typedInput({
+            types: ['str', 'json', 'msg', 'flow', 'global', 'jsonata', 'env'],
+            typeField: $('#node-input-dataType')
+            });
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="mattercommand">
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-controller">Controller</label>
+        <input type="text" id="node-input-controller" style="width:70%;">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device">Device</label>
+        <select type="text" id="node-input-device" style="width:50%;" >
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-endpoint">Endpoint</label>
+        <select type="text" id="node-input-endpoint" style="width:50%;" >
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-cluster">Cluster</label>
+        <select type="text" id="node-input-cluster" style="width:50%;" >
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-command">Command</label>
+        <select type="text" id="node-input-command" style="width:50%;" >
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-data">data</label>
+        <input type="hidden" id="node-input-dataType">
+        <input type="text" id="node-input-data">
+    </div>
+   
+</script>
+
+<script type="text/x-red" data-help-name="mattercommand">
+    <p>Send a Command to a Device</p>
+</script>
