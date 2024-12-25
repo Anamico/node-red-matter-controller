@@ -16,12 +16,28 @@ module.exports =  function(RED) {
         RED.nodes.createNode(this, config);
         var node = this;
         node.networkInterface = config.networkInterface 
-        node.logLevel = config.logLevel
+        switch (config.logLevel) {
+            case "FATAL":
+                Logger.defaultLogLevel = 5;
+                break;
+            case "ERROR":
+                Logger.defaultLogLevel = 4;
+                break;
+            case "WARN":
+                Logger.defaultLogLevel = 3;
+                break;
+            case "INFO":
+                Logger.defaultLogLevel = 1;
+                break;1
+            case "DEBUG":
+                Logger.defaultLogLevel = 0;
+                break;
+        }
         Environment.default.vars.set('mdns.networkInterface', node.networkInterface);
         node.commissioningController = new CommissioningController({
             environment: {
                 environment,
-                id: node.id
+                id: 'controller-9999'
             },
             autoConnect: false,
         })
@@ -46,22 +62,23 @@ module.exports =  function(RED) {
     RED.httpAdmin.get('/_mattercontroller/:id/devices/', RED.auth.needsPermission('admin.write'), function(req,res){
         let ctrl_node = RED.nodes.getNode(req.params.id)
         if (ctrl_node){
-            ctrl_node = {commissioningController : commissioningController}
             deviceList = {}
             const nodes = ctrl_node.commissioningController.getCommissionedNodes();
+            console.log(nodes)
             nodes.forEach(nodeId => {
-                const conn = ctrl_node.commissioningController.connectNode(nodeId)
-                conn.then(() => {
-                    node.getRootClusterClient(BasicInformationCluster).then((info) => {
-                        info.getProductNameAttribute().then((productName) => {
-                            deviceList[node.nodeId] = productName
-                        })
-                        //TODO If productName is blank may need to use other attributes here, or prioritse other user label
+                ctrl_node.commissioningController.connectNode(nodeId)
+                .then((conn) => {
+                    info = conn.getRootClusterClient(BasicInformationCluster)
+                    info.getNodeLabelAttribute()
+                    .then((nodeLabel) => {
+                        console.log(nodeLabel)
+                        deviceList[nodeId] = nodeLabel
+                        if (Object.keys(deviceList).length == nodes.length){
+                            res.send(deviceList)
+                        }    
                     })
                 })
-                
-            });
-            res.send(deviceList)
+            })
         }
         else {
             res.sendStatus(404);  
@@ -72,14 +89,16 @@ module.exports =  function(RED) {
     RED.httpAdmin.get('/_mattercontroller/:cid/device/:did/clusters', RED.auth.needsPermission('admin.write'), function(req,res){
         let ctrl_node = RED.nodes.getNode(req.params.cid)
         if (ctrl_node){
-            let n = ctrl_node.commissioningController.connectNode(req.params.did);
-            let d = nx.getDevices()
-            let cl = d[0].getAllClusterClients()
-            clusterList = {}
-            cl.forEach((c) => {
-                clusterList[c.id] = c.name
+            ctrl_node.commissioningController.connectNode(BigInt(req.params.did))
+            .then((conn) => {
+                let d = conn.getDevices()
+                let cl = d[0].getAllClusterClients()
+                clusterList = {}
+                cl.forEach((c) => {
+                    clusterList[c.id] = c.name
+                })
+                res.send(clusterList)
             })
-            res.send(clusterList)
         }
         else {
             res.sendStatus(404);  
@@ -89,10 +108,12 @@ module.exports =  function(RED) {
     RED.httpAdmin.get('/_mattercontroller/:cid/device/:did/cluster/:clid/commands', RED.auth.needsPermission('admin.write'), function(req,res){
         let ctrl_node = RED.nodes.getNode(req.params.cid)
         if (ctrl_node){
-            let n = ctrl_node.commissioningController.connectNode(req.params.did);
-            let d = n.getDevices()
-            cmds = d[0].getClusterClientById(req.params.clid).commands
-            res.send(Object.keys(cmds))
+            ctrl_node.commissioningController.connectNode(BigInt(req.params.did))
+            .then((conn) => {
+                let d = conn.getDevices()
+                cmds = d[0].getClusterClientById(Number(req.params.clid)).commands
+                res.send(Object.keys(cmds))
+            })
         }
         else {
             res.sendStatus(404);  
@@ -102,10 +123,12 @@ module.exports =  function(RED) {
     RED.httpAdmin.get('/_mattercontroller/:cid/device/:did/cluster/:clid/attributes', RED.auth.needsPermission('admin.write'), function(req,res){
         let ctrl_node = RED.nodes.getNode(req.params.cid)
         if (ctrl_node){
-            let n = ctrl_node.commissioningController.connectNode(req.params.did);
-            let d = n.getDevices()
-            atrs = d[0].getClusterClientById(req.params.clid).attributes
-            res.send(Object.keys(cmds))
+            ctrl_node.commissioningController.connectNode(BigInt(req.params.did))
+            .then((conn) => {
+                let d = conn.getDevices()
+                atrs = d[0].getClusterClientById(Number(req.params.clid)).attributes
+                res.send(Object.keys(atrs))
+            })
         }
         else {
             res.sendStatus(404);  

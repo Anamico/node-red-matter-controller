@@ -15,7 +15,7 @@ module.exports =  function(RED) {
         RED.nodes.createNode(this, config);
         var node = this;
         node.method = config.method
-        
+        node.controller = RED.nodes.getNode(config.controller);
         this.on('input', function(msg) {
             switch (node.method) {
                 case 'commisionDevice':
@@ -23,10 +23,10 @@ module.exports =  function(RED) {
                     let shortDiscriminator = undefined
                     let re = new RegExp("MT:.*")
                     let pcData
-                    if (re.test(msg.payload)) {
-                        pcData = QrPairingCodeCodec.decode(msg.payload)[0]
+                    if (re.test(msg.payload.code)) {
+                        pcData = QrPairingCodeCodec.decode(msg.payload.code)[0]
                     } else {
-                        pcData = ManualPairingCodeCodec.decode(msg.payload);
+                        pcData = ManualPairingCodeCodec.decode(msg.payload.code);
                     }
                     let options = {
                         commissioning :{
@@ -41,10 +41,16 @@ module.exports =  function(RED) {
                         },
                         passcode: pcData.passcode,
                     }
-                    commissioningController.commissionNode(options).then((nodeId) => {
-                        node.log(`Commissioning successfully done with nodeId ${nodeId}`)
-                        msg.payload = nodeId
-                        msg.send()
+                    node.controller.commissioningController.commissionNode(options).then((nodeId) => {
+                        node.controller.commissioningController.connectNode(nodeId)
+                        .then((conn) => {
+                            info = conn.getRootClusterClient(BasicInformationCluster)
+                            info.setNodeLabelAttribute(msg.payload.label).then(() => {
+                                node.log(`Commissioned ${msg.payload.label} as nodeId ${nodeId}`)
+                                msg.payload = nodeId
+                                msg.send()
+                            })
+                        })
                     })
                     break;
                 case 'decommisionDevice':

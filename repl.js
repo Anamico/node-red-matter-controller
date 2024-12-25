@@ -10,6 +10,8 @@ var { NodeStates } = await import("@project-chip/matter.js/device")
 const logger = Logger.get("Controller");
 const environment = Environment.default;
 
+Logger.defaultLogLevel = 4;
+
 const commissioningController = new CommissioningController({
     environment: {
         environment,
@@ -45,4 +47,23 @@ async function commissionDevice(pc){
     }
         const nodeId = await commissioningController.commissionNode(options);
         console.log(`Commissioning successfully done with nodeId ${nodeId}`);
+}
+
+function devices(){
+    ctrl_node = {commissioningController : commissioningController}
+    deviceList = {}
+    info = undefined
+    const nodes = ctrl_node.commissioningController.getCommissionedNodes();
+    console.log(nodes)
+    nodes.forEach(nodeId => {
+        ctrl_node.commissioningController.connectNode(nodeId)
+        .then((conn) => {
+            info = conn.getRootClusterClient(BasicInformationCluster)
+            info.getNodeLabelAttribute().then((nodeLabel) => { 
+                console.log(nodeLabel)
+                deviceList[nodeId] = nodeLabel  
+            })
+        })
+    })
+    return info
 }
