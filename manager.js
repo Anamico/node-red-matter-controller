@@ -14,11 +14,14 @@ module.exports =  function(RED) {
     function MatterManager(config) {
         RED.nodes.createNode(this, config);
         var node = this;
-        node.method = config.method
         node.controller = RED.nodes.getNode(config.controller);
         this.on('input', function(msg) {
-            switch (node.method) {
-                case 'commisionDevice':
+            _method = RED.util.evaluateNodeProperty(config.method, config.methodType, node, msg);
+            if (!_method) {
+                _method=config.methodType
+            }
+            switch (_method) {
+                case 'commissionDevice':
                     let longDiscriminator = undefined
                     let shortDiscriminator = undefined
                     let re = new RegExp("MT:.*")
@@ -48,12 +51,12 @@ module.exports =  function(RED) {
                             info.setNodeLabelAttribute(msg.payload.label).then(() => {
                                 node.log(`Commissioned ${msg.payload.label} as nodeId ${nodeId}`)
                                 msg.payload = nodeId
-                                msg.send()
+                                node.send()
                             })
                         })
                     })
                     break;
-                case 'decommisionDevice':
+                case 'decommissionDevice':
                     break;
                 case 'ping':
                     break;
@@ -62,7 +65,7 @@ module.exports =  function(RED) {
                 case 'getDevice':
                     break
                 default:
-                    node.error('Unknown Method')
+                    node.error(`Unknown Method ${_method}`)
                     break;
             }
         })

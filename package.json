@@ -30,7 +30,8 @@
     "version": ">=3.0.0",
     "nodes": {
       "matter-controller": "controller.js",
-      "matter-manager": "manager.js"
+      "matter-manager": "manager.js",
+       "matter-command": "command.js"
     }
   }
 }

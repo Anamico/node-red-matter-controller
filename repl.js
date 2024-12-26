@@ -1,5 +1,5 @@
 var { Environment, Logger, singleton, StorageService, Time } = await import( "@matter/main");
-var { BasicInformationCluster, DescriptorCluster, GeneralCommissioning, OnOff } = await import( "@matter/main/clusters");
+var { BasicInformationCluster, DescriptorCluster, GeneralCommissioning, OnOff, LevelControl} = await import( "@matter/main/clusters");
 var { ClusterClientObj, ControllerCommissioningFlowOptions } = await import("@matter/main/protocol") 
 var { ManualPairingCodeCodec, QrPairingCodeCodec, NodeId } = await import("@matter/main/types")
 
@@ -10,14 +10,14 @@ var { NodeStates } = await import("@project-chip/matter.js/device")
 const logger = Logger.get("Controller");
 const environment = Environment.default;
 
-Logger.defaultLogLevel = 4;
+Logger.defaultLogLevel = 0;
 
 const commissioningController = new CommissioningController({
     environment: {
         environment,
         id: "controller-9999",
     },
-    autoConnect: false,
+    autoConnect: true,
 });
 
 await commissioningController.start();

@@ -8,6 +8,8 @@ const os = require('os');
 var { CommissioningController, NodeCommissioningOptions } =  require("@project-chip/matter.js")
 var { NodeStates } =  require("@project-chip/matter.js/device")
 
+const {commandOptions} = require('./utils')
+
 
 const environment = Environment.default;
 
@@ -37,6 +39,7 @@ module.exports =  function(RED) {
         node.commissioningController = new CommissioningController({
             environment: {
                 environment,
+                //id: node.id
                 id: 'controller-9999'
             },
             autoConnect: false,
@@ -119,6 +122,13 @@ module.exports =  function(RED) {
             res.sendStatus(404);  
         }
     })
+
+    // Get Command options
+    RED.httpAdmin.get('/_mattermodel/cluster/:clid/command/:cmd/options', RED.auth.needsPermission('admin.write'), function(req,res){
+            let data = commandOptions(req.params.clid, req.params.cmd)
+            res.send(JSON.stringify(data))
+    })
+
     // List Attributes
     RED.httpAdmin.get('/_mattercontroller/:cid/device/:did/cluster/:clid/attributes', RED.auth.needsPermission('admin.write'), function(req,res){
         let ctrl_node = RED.nodes.getNode(req.params.cid)

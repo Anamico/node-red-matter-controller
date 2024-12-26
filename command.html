@@ -1,6 +1,14 @@
+
+<script src="resources/node-red-matter-controller/editor.js">
+
+</script>
 <script type="text/javascript">
     RED.nodes.registerType('mattercommand',{
-        category: 'matter',
+        category: 'Matter',
+        color: '#95cc95',
+        icon: "font-awesome/fa-arrow-circle-o-down",
+        inputs:1,
+        outputs:1,
         defaults: {
             name: {value:""},
             controller: { value: "", type: "mattercontroller", required: true },
@@ -10,15 +18,20 @@
             command: {value:""},
             data: {value:""},
             dataType: {value:""},
+            simpleMode: {value: "true"}
         },
         label: function() {
             return this.name||"Command";
         },
         oneditprepare: function() {
             $('#node-input-data').typedInput({
-            types: ['str', 'json', 'msg', 'flow', 'global', 'jsonata', 'env'],
-            typeField: $('#node-input-dataType')
+                types: ['str', 'json', 'msg', 'flow', 'global', 'jsonata', 'env'],
+                typeField: $('#node-input-dataType')
             });
+            $('#node-input-controller').on("change", getDevices);
+            $('#node-input-device').on("change", getClusters);
+            $('#node-input-cluster').on("change", getCommands);
+
         }
     });
 </script>
@@ -33,15 +46,21 @@
         <input type="text" id="node-input-controller" style="width:70%;">
     </div>
     <div class="form-row">
+        <label for="node-input-simpleMode">Simple Mode</label>
+        <input type="checkbox" id="node-input-simpleMode" value="true" >
+    </div>
+    <div class="form-row">
         <label for="node-input-device">Device</label>
         <select type="text" id="node-input-device" style="width:50%;" >
         </select>
     </div>
-    <div class="form-row">
+    <!--
+        <div class="form-row">
         <label for="node-input-endpoint">Endpoint</label>
         <select type="text" id="node-input-endpoint" style="width:50%;" >
         </select>
     </div>
+    -->
     <div class="form-row">
         <label for="node-input-cluster">Cluster</label>
         <select type="text" id="node-input-cluster" style="width:50%;" >
@@ -63,3 +82,4 @@
 <script type="text/x-red" data-help-name="mattercommand">
     <p>Send a Command to a Device</p>
 </script>
+
