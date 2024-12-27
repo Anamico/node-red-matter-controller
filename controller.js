@@ -8,7 +8,7 @@ const os = require('os');
 var { CommissioningController, NodeCommissioningOptions } =  require("@project-chip/matter.js")
 var { NodeStates } =  require("@project-chip/matter.js/device")
 
-const {commandOptions} = require('./utils')
+const {commandOptions, attributeOptions} = require('./utils')
 
 
 const environment = Environment.default;
@@ -143,7 +143,33 @@ module.exports =  function(RED) {
         }
     })
 
+    // List Writable Attributes
+    RED.httpAdmin.get('/_mattercontroller/:cid/device/:did/cluster/:clid/attributes_writable', RED.auth.needsPermission('admin.write'), function(req,res){
+        let ctrl_node = RED.nodes.getNode(req.params.cid)
+        if (ctrl_node){
+            ctrl_node.commissioningController.connectNode(BigInt(req.params.did))
+            .then((conn) => {
+                let d = conn.getDevices()
+                atrs = d[0].getClusterClientById(Number(req.params.clid)).attributes
+                let response = []
+                Object.keys(atrs).forEach((k) => {
+                    if (atrs[k].attribute.writable) {
+                        response.push(k)
+                    }
+                })
+                res.send(response)
+            })
+        }
+        else {
+            res.sendStatus(404);  
+        }
+    })
 
+    // Get Attribute options
+    RED.httpAdmin.get('/_mattermodel/cluster/:clid/attribute/:attr/options', RED.auth.needsPermission('admin.write'), function(req,res){
+        let data = attributeOptions(req.params.clid, req.params.attr)
+        res.send(data)
+})
 }
 
 

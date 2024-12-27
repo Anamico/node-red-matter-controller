@@ -38,4 +38,20 @@ function commandOptions(clusterID, commandName){
     return data
 }
 
-module.exports = {commandOptions}
+function attributeOptions(clusterID, attributeName){
+    data = {}
+    clusterName = Models.MatterModel.standard.get(Models.ClusterModel, Number(clusterID)).name
+    cluster = eval('Models.'+clusterName)
+    cluster.attributes.forEach((attr, i) => {
+        if (attr.name == cap(attributeName)){
+            data.name = attr.name
+            data.defaut = attr.default || ''
+            data.constraint = attr.constraint || ''
+            data.type = attr.type
+            data.details = attr.details || ''
+        }
+    })
+    return data
+}
+
+module.exports = {commandOptions, attributeOptions, deCap, cap}

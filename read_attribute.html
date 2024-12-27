@@ -1,9 +1,9 @@
 
 <script type="text/javascript">
-    RED.nodes.registerType('mattercommand',{
+    RED.nodes.registerType('matterreadattr',{
         category: 'Matter',
         color: '#95cc95',
-        icon: "font-awesome/fa-arrow-circle-o-down",
+        icon: "font-awesome/fa-book",
         inputs:1,
         outputs:1,
         defaults: {
@@ -13,35 +13,28 @@
             deviceName: {value:""},
             endpoint: {value:""},
             cluster: {value:""},
-            command: {value:""},
-            data: {value:"{}"},
-            dataType: {value:""},
+            attr: {value:""},
             simpleMode: {value: "true"}
         },
-        paletteLabel: "Command",
+        paletteLabel: "Read Attriubute",
         label: function() {
-            let defaultName = `${this.deviceName} | ${this.command}`
-            return this.name || defaultName || "Command";
+            let defaultName = `${this.deviceName} | ${this.attr}`
+            return this.name || defaultName || "Read";
         },
         oneditprepare: function() {
-            $('#node-input-data').typedInput({
-                types: ['json', 'msg', 'flow', 'global', 'jsonata', 'env'],
-                typeField: $('#node-input-dataType')
-            });
             if (this.device.length != 0){
                 setDevice(this.controller, this.device)
             } 
             if (this.cluster.length != 0){
                 setCluster(this.controller, this.device, this.cluster)
             }
-            if (this.command.length != 0){
-                setCommand(this.controller, this.device, this.cluster, this.command);
+            if (this.attr.length != 0){
+                setAttribute(this.controller, this.device, this.cluster, this.attr);
             } 
             $('#refresh-devices').on("click", getDevices);
             $('#refresh-clusters').on("click", getClusters);
-            $('#refresh-commands').on("click", getCommands);
-            $('#refresh-sample').on("click", getCommandOpts);
-            $('node-input-command').on("changed", getCommandOpts);
+            $('#refresh-attr').on("click", getAttributes);
+
         },
         oneditsave: function() {
             let el = document.getElementById('node-input-device');
@@ -50,7 +43,7 @@
     });
 </script>
 
-<script type="text/x-red" data-template-name="mattercommand">
+<script type="text/x-red" data-template-name="matterreadattr">
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
@@ -83,25 +76,14 @@
         <a id="refresh-clusters" class="btn"><i class="fa fa-refresh"></i></a>
     </div>
     <div class="form-row">
-        <label for="node-input-command">Command</label>
-        <select type="text" id="node-input-command" style="width:50%;" >
+        <label for="node-input-attr">Attribute</label>
+        <select type="text" id="node-input-attr" style="width:50%;" >
         </select>
-        <a id="refresh-commands" class="btn"><i class="fa fa-refresh"></i></a>
+        <a id="refresh-attr" class="btn"><i class="fa fa-refresh"></i></a>
     </div>
-    <div class="form-row">
-        <label for="node-input-data">Params</label>
-        <input type="hidden" id="node-input-dataType">
-        <input type="text" id="node-input-data">
-        <div class="form-tips" style="width:90%;">
-            <b>Sample Params</b>&nbsp;
-            <a id="refresh-sample" class="btn"><i class="fa fa-refresh"></i></a>
-            <pre id="sample-data"></pre>
-        </div>
-    </div>
-   
 </script>
 
-<script type="text/x-red" data-help-name="mattercommand">
-    <p>Send a Command to a Device</p>
+<script type="text/x-red" data-help-name="matterreadattr">
+    <p>Read an Attribute on a Device</p>
 </script>
 

@@ -31,7 +31,9 @@
     "nodes": {
       "matter-controller": "controller.js",
       "matter-manager": "manager.js",
-       "matter-command": "command.js"
+      "matter-command": "command.js",
+      "matter-readattr": "read_attribute.js",
+      "matter-writeattr": "write_attribute.js"
     }
   }
 }

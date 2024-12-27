@@ -10,7 +10,7 @@ var { NodeStates } = await import("@project-chip/matter.js/device")
 const logger = Logger.get("Controller");
 const environment = Environment.default;
 
-Logger.defaultLogLevel = 0;
+Logger.defaultLogLevel = 4;
 
 const commissioningController = new CommissioningController({
     environment: {

@@ -10,7 +10,12 @@ const simpleCommands = {
     '8' : ["moveToLevel"],
     '768' : ["moveToHue",  "moveToSaturation", "moveToColorTemperature"]
 } 
-const simpleAtrributes = []
+const simpleAttributes = {
+    '3' : ["identifyTime"],
+    '6' : ["onOff", "onTime", "offWaitTime", "startUpOnOff"],
+    '8' : ["currentLevel", "maxLevel", "minLevel", ],
+    '768' : ["currentMode",  "currentHue", "currentSaturation", "colorTemperatureMireds"]
+}
 
 function getDevices() {
     //console.log('getDevices')
@@ -203,6 +208,86 @@ function setCommand(ctrl_node, device, cluster, command){
     
 }
 
+function getAttributes(writable=false){
+    console.log('getAttributes')
+    ctrl_node = document.getElementById('node-input-controller').value
+    device = document.getElementById('node-input-device').value
+    cluster = document.getElementById('node-input-cluster').value
+    let simpleMode = document.getElementById("node-input-simpleMode")
+    if ((ctrl_node != '_ADD_' || ctrl_node != undefined) && (device != undefined || device != '__SELECT__') && (cluster != undefined || cluster != '__SELECT__')){
+        if (writable){
+            url =`_mattercontroller/${ctrl_node}/device/${device}/cluster/${cluster}/attributes_writable`
+        } else{
+            url =`_mattercontroller/${ctrl_node}/device/${device}/cluster/${cluster}/attributes`
+        }
+        $.get(url, function(r) {
+            var attrs = document.getElementById("node-input-attr");
+            removeOptions(attrs)
+            var option = document.createElement("option");
+            option.text = '--SELECT--'
+            option.value = undefined
+            attrs.add(option)
+            r.forEach(d => {
+                if (simpleMode.checked){
+                    if (simpleAttributes[cluster].includes(d)) {
+                        var option = document.createElement("option");
+                        option.text = d
+                        option.value = d
+                        option.id = d
+                        attrs.add(option);
+                    }
+                } else {
+                    var option = document.createElement("option");
+                    option.text = d
+                    option.value = d
+                    option.id = d
+                    attrs.add(option);
+                }
+            });
+        })
+    }
+}
+function setAttribute(ctrl_node, device, cluster, attr, writable=false){
+    console.log(`setAttribute , ${ctrl_node}, ${device}, ${cluster}, ${attr}`)
+    let simpleMode = document.getElementById("node-input-simpleMode")
+    if ((ctrl_node != '_ADD_' || ctrl_node != undefined) || (device != undefined || device != '__SELECT__') && (cluster != undefined || cluster != '__SELECT__')){
+        if (writable){
+            url =`_mattercontroller/${ctrl_node}/device/${device}/cluster/${cluster}/attributes_writable`
+        } else{
+            url =`_mattercontroller/${ctrl_node}/device/${device}/cluster/${cluster}/attributes`
+        }
+        $.get(url, function(r) {
+            var attrs = document.getElementById("node-input-attr");
+            removeOptions(attrs)
+            var option = document.createElement("option");
+            option.text = '--SELECT--'
+            option.value = undefined
+            attrs.add(option)
+            r.forEach(d => {
+                if (simpleMode.checked){
+                    if (simpleAttributes[cluster].includes(d)) {
+                        var option = document.createElement("option");
+                        option.text = d
+                        option.value = d
+                        option.id = d
+                        if (attr == d) { option.selected=true}
+                        attrs.add(option);
+                    }
+                } else {
+                    var option = document.createElement("option");
+                    option.text = d
+                    option.value = d
+                    option.id = d
+                    if (attr == d) { option.selected=true}
+                    attrs.add(option);
+                }
+            });
+        })
+    }
+    
+}
+
+
 function getCommandOpts(){
     let clusterID = document.getElementById("node-input-cluster").value
     let command = document.getElementById("node-input-command").value
@@ -211,6 +296,20 @@ function getCommandOpts(){
         document.getElementById('sample-data').innerHTML=JSON.stringify(r, null, 2)
     })
 }
+
+function getAttributeOpts(){
+    console.log(`getAttributeOpts`)
+    let clusterID = document.getElementById("node-input-cluster").value
+    let attribute = document.getElementById("node-input-attr").value
+    url = `_mattermodel/cluster/${clusterID}/attribute/${attribute}/options`
+    $.get(url, function(r) {
+        let details = r.details
+        delete(r.details)
+        document.getElementById('sample-data').innerHTML=JSON.stringify(r, null, 2)
+        document.getElementById('sample-details').innerHTML=details
+    })
+}
+
 
 function removeOptions(selectElement) {
    var i, L = selectElement.options.length - 1;
