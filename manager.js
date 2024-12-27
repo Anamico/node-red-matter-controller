@@ -53,8 +53,11 @@ module.exports =  function(RED) {
                                 msg.payload = nodeId
                                 node.send()
                             })
+                            .catch((error) => {node.error(error)})
                         })
+                        .catch((error) => {node.error(error)})
                     })
+                    .catch((error) => {node.error(error)})
                     break;
                 case 'decommissionDevice':
                     break;

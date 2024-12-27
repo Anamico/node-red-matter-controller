@@ -1,10 +1,10 @@
 
 <script type="text/javascript">
-    RED.nodes.registerType('matterwriteattr',{
+    RED.nodes.registerType('mattersubscribe',{
         category: 'Matter',
         color: '#95cc95',
-        icon: "font-awesome/fa-pencil",
-        inputs:1,
+        icon: "font-awesome/fa-eye",
+        inputs:0,
         outputs:1,
         defaults: {
             name: {value:""},
@@ -15,19 +15,14 @@
             cluster: {value:""},
             attr: {value:""},
             simpleMode: {value: "true"},
-            data: {value:"{}"},
-            dataType: {value:""},
+            topic: {value:""}
         },
-        paletteLabel: "Write Attribute",
+        paletteLabel: "Subscribe",
         label: function() {
             let defaultName = `${this.deviceName} | ${this.attr}`
             return this.name || defaultName || "Read";
         },
         oneditprepare: function() {
-            $('#node-input-data').typedInput({
-                types: ['str', 'int', 'bool', 'json', 'msg', 'flow', 'global', 'jsonata', 'env'],
-                typeField: $('#node-input-dataType')
-            });
             if (this.device.length != 0){
                 setDevice(this.controller, this.device)
             } 
@@ -35,13 +30,12 @@
                 setCluster(this.controller, this.device, this.cluster)
             }
             if (this.attr.length != 0){
-                setAttribute(this.controller, this.device, this.cluster, this.attr, writable=true);
+                setAttribute(this.controller, this.device, this.cluster, this.attr, writable=false);
             } 
             $('#refresh-devices').on("click", getDevices);
             $('#refresh-clusters').on("click", getClusters);
-            $('#refresh-attr').on("click", function() { getAttributes(writable=true); } );
-            $('#refresh-sample').on("click", getAttributeOpts);
-            $('node-input-attribute').on("changed", getAttributeOpts);
+            $('#refresh-attr').on("click", function() { getAttributes(writable=false); } );
+
         },
         oneditsave: function() {
             let el = document.getElementById('node-input-device');
@@ -50,7 +44,7 @@
     });
 </script>
 
-<script type="text/x-red" data-template-name="matterwriteattr">
+<script type="text/x-red" data-template-name="mattersubscribe">
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
@@ -89,19 +83,12 @@
         <a id="refresh-attr" class="btn"><i class="fa fa-refresh"></i></a>
     </div>
     <div class="form-row">
-        <label for="node-input-data">Param</label>
-        <input type="hidden" id="node-input-dataType">
-        <input type="text" id="node-input-data">
-        <div class="form-tips" style="width:90%;">
-            <b>Param Info</b>&nbsp;
-            <a id="refresh-sample" class="btn"><i class="fa fa-refresh"></i></a>
-            <pre id="sample-data"></pre>
-            <div id="sample-details"></div>
-        </div>
+        <label for="node-input-topic">Topic</label>
+        <input type="text" id="node-input-topic">
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="matterwriteattr">
-    <p>Write to an Attribute on a Device</p>
+<script type="text/x-red" data-help-name="mattersubscribe">
+    <p>Subscribe to Attribute changes on a Device</p>
 </script>
 

@@ -14,6 +14,7 @@ const simpleAttributes = {
     '3' : ["identifyTime"],
     '6' : ["onOff", "onTime", "offWaitTime", "startUpOnOff"],
     '8' : ["currentLevel", "maxLevel", "minLevel", ],
+    '69' : ["stateValue"],
     '768' : ["currentMode",  "currentHue", "currentSaturation", "colorTemperatureMireds"]
 }
 
@@ -209,7 +210,7 @@ function setCommand(ctrl_node, device, cluster, command){
 }
 
 function getAttributes(writable=false){
-    console.log('getAttributes')
+    console.log(`getAttributes, ${writable}`)
     ctrl_node = document.getElementById('node-input-controller').value
     device = document.getElementById('node-input-device').value
     cluster = document.getElementById('node-input-cluster').value
@@ -220,6 +221,7 @@ function getAttributes(writable=false){
         } else{
             url =`_mattercontroller/${ctrl_node}/device/${device}/cluster/${cluster}/attributes`
         }
+        console.log(url)
         $.get(url, function(r) {
             var attrs = document.getElementById("node-input-attr");
             removeOptions(attrs)
@@ -248,7 +250,7 @@ function getAttributes(writable=false){
     }
 }
 function setAttribute(ctrl_node, device, cluster, attr, writable=false){
-    console.log(`setAttribute , ${ctrl_node}, ${device}, ${cluster}, ${attr}`)
+    console.log(`setAttribute , ${ctrl_node}, ${device}, ${cluster}, ${attr}, ${writable}`)
     let simpleMode = document.getElementById("node-input-simpleMode")
     if ((ctrl_node != '_ADD_' || ctrl_node != undefined) || (device != undefined || device != '__SELECT__') && (cluster != undefined || cluster != '__SELECT__')){
         if (writable){
@@ -286,6 +288,55 @@ function setAttribute(ctrl_node, device, cluster, attr, writable=false){
     }
     
 }
+
+function getEvents(){
+    console.log('getEvents')
+    ctrl_node = document.getElementById('node-input-controller').value
+    device = document.getElementById('node-input-device').value
+    cluster = document.getElementById('node-input-cluster').value
+    if ((ctrl_node != '_ADD_' || ctrl_node != undefined) && (device != undefined || device != '__SELECT__') && (cluster != undefined || cluster != '__SELECT__')){
+        url =`_mattercontroller/${ctrl_node}/device/${device}/cluster/${cluster}/events`
+        $.get(url, function(r) {
+            var events = document.getElementById("node-input-event");
+            removeOptions(events)
+            var option = document.createElement("option");
+            option.text = '--SELECT--'
+            option.value = undefined
+            events.add(option)
+            r.forEach(d => {
+                var option = document.createElement("option");
+                option.text = d
+                option.value = d
+                option.id = d
+                events.add(option);
+            });
+        })
+    }
+}
+function setEvent(ctrl_node, device, cluster, event){
+    console.log(`setEvent , ${ctrl_node}, ${device}, ${cluster}, ${event}`)
+    if ((ctrl_node != '_ADD_' || ctrl_node != undefined) || (device != undefined || device != '__SELECT__') && (cluster != undefined || cluster != '__SELECT__')){
+        url =`_mattercontroller/${ctrl_node}/device/${device}/cluster/${cluster}/events`
+        $.get(url, function(r) {
+            var events = document.getElementById("node-input-event");
+            removeOptions(events)
+            var option = document.createElement("option");
+            option.text = '--SELECT--'
+            option.value = undefined
+            events.add(option)
+            r.forEach(d => {
+                var option = document.createElement("option");
+                option.text = d
+                option.value = d
+                option.id = d
+                if (event == d) { option.selected=true}
+                events.add(option);
+            });
+        })
+    }
+    
+}
+
 
 
 function getCommandOpts(){

@@ -2,7 +2,6 @@ const { Environment, Logger, singleton, StorageService, Time } = require( "@matt
 const { BasicInformationCluster, DescriptorCluster, GeneralCommissioning, OnOff } = require( "@matter/main/clusters");
 const { ClusterClientObj, ControllerCommissioningFlowOptions } = require("@matter/main/protocol") 
 const { ManualPairingCodeCodec, QrPairingCodeCodec, NodeId } = require("@matter/main/types")
-const os = require('os');
 
 //Some parts of the controller are still in the legacy packages
 var { CommissioningController, NodeCommissioningOptions } =  require("@project-chip/matter.js")
@@ -14,6 +13,7 @@ module.exports =  function(RED) {
     function MatterController(config) {
         RED.nodes.createNode(this, config);
         var node = this;
+        node.started = false
         node.networkInterface = config.networkInterface 
         switch (config.logLevel) {
             case "FATAL":
@@ -41,7 +41,7 @@ module.exports =  function(RED) {
             },
             autoConnect: false,
         })
-        node.commissioningController.start();
+        node.commissioningController.start().then(() => {node.started = true})
     }
     RED.nodes.registerType("mattercontroller",MatterController);
 

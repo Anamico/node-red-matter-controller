@@ -1,10 +1,10 @@
 
 <script type="text/javascript">
-    RED.nodes.registerType('matterwriteattr',{
+    RED.nodes.registerType('matterevent',{
         category: 'Matter',
         color: '#95cc95',
-        icon: "font-awesome/fa-pencil",
-        inputs:1,
+        icon: "font-awesome/fa-bell",
+        inputs:0,
         outputs:1,
         defaults: {
             name: {value:""},
@@ -13,35 +13,28 @@
             deviceName: {value:""},
             endpoint: {value:""},
             cluster: {value:""},
-            attr: {value:""},
-            simpleMode: {value: "true"},
-            data: {value:"{}"},
-            dataType: {value:""},
+            event: {value:""},
+            topic: {value:""}
         },
-        paletteLabel: "Write Attribute",
+        paletteLabel: "Event",
         label: function() {
-            let defaultName = `${this.deviceName} | ${this.attr}`
-            return this.name || defaultName || "Read";
+            let defaultName = `${this.deviceName} | ${this.event}`
+            return this.name || defaultName || "Event";
         },
         oneditprepare: function() {
-            $('#node-input-data').typedInput({
-                types: ['str', 'int', 'bool', 'json', 'msg', 'flow', 'global', 'jsonata', 'env'],
-                typeField: $('#node-input-dataType')
-            });
             if (this.device.length != 0){
                 setDevice(this.controller, this.device)
             } 
             if (this.cluster.length != 0){
                 setCluster(this.controller, this.device, this.cluster)
             }
-            if (this.attr.length != 0){
-                setAttribute(this.controller, this.device, this.cluster, this.attr, writable=true);
+            if (this.event.length != 0){
+                setEvent(this.controller, this.device, this.cluster, this.event);
             } 
             $('#refresh-devices').on("click", getDevices);
             $('#refresh-clusters').on("click", getClusters);
-            $('#refresh-attr').on("click", function() { getAttributes(writable=true); } );
-            $('#refresh-sample').on("click", getAttributeOpts);
-            $('node-input-attribute').on("changed", getAttributeOpts);
+            $('#refresh-event').on("click", getEvents);
+
         },
         oneditsave: function() {
             let el = document.getElementById('node-input-device');
@@ -50,7 +43,7 @@
     });
 </script>
 
-<script type="text/x-red" data-template-name="matterwriteattr">
+<script type="text/x-red" data-template-name="matterevent">
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
@@ -83,25 +76,18 @@
         <a id="refresh-clusters" class="btn"><i class="fa fa-refresh"></i></a>
     </div>
     <div class="form-row">
-        <label for="node-input-attr">Attribute</label>
-        <select type="text" id="node-input-attr" style="width:50%;" >
+        <label for="node-input-event">Event</label>
+        <select type="text" id="node-input-event" style="width:50%;" >
         </select>
-        <a id="refresh-attr" class="btn"><i class="fa fa-refresh"></i></a>
+        <a id="refresh-event" class="btn"><i class="fa fa-refresh"></i></a>
     </div>
     <div class="form-row">
-        <label for="node-input-data">Param</label>
-        <input type="hidden" id="node-input-dataType">
-        <input type="text" id="node-input-data">
-        <div class="form-tips" style="width:90%;">
-            <b>Param Info</b>&nbsp;
-            <a id="refresh-sample" class="btn"><i class="fa fa-refresh"></i></a>
-            <pre id="sample-data"></pre>
-            <div id="sample-details"></div>
-        </div>
+        <label for="node-input-topic">Topic</label>
+        <input type="text" id="node-input-topic">
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="matterwriteattr">
-    <p>Write to an Attribute on a Device</p>
+<script type="text/x-red" data-help-name="matterevent">
+    <p>Receive Events from a Device</p>
 </script>
 

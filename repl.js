@@ -24,46 +24,17 @@ await commissioningController.start();
 let longDiscriminator = undefined
 let shortDiscriminator = undefined
 
-async function commissionDevice(pc){
-    let re = new RegExp("MT:.*")
-    let pcData
-    if (re.test(pc)) {
-        pcData = QrPairingCodeCodec.decode(pc)[0]
-    } else {
-        pcData = ManualPairingCodeCodec.decode(pc);
-    }
-    let options = {
-        commissioning :{
-            regulatoryLocation: 2
-        },
-        discovery: {
-            identifierData:
-                 { shortDiscriminator : pcData.shortDiscriminator } ,
-            discoveryCapabilities: {
-                ble : false,
-            },
-        },
-        passcode: pcData.passcode,
-    }
-        const nodeId = await commissioningController.commissionNode(options);
-        console.log(`Commissioning successfully done with nodeId ${nodeId}`);
-}
 
-function devices(){
-    ctrl_node = {commissioningController : commissioningController}
-    deviceList = {}
-    info = undefined
-    const nodes = ctrl_node.commissioningController.getCommissionedNodes();
-    console.log(nodes)
-    nodes.forEach(nodeId => {
-        ctrl_node.commissioningController.connectNode(nodeId)
-        .then((conn) => {
-            info = conn.getRootClusterClient(BasicInformationCluster)
-            info.getNodeLabelAttribute().then((nodeLabel) => { 
-                console.log(nodeLabel)
-                deviceList[nodeId] = nodeLabel  
-            })
-        })
-    })
-    return info
-}
+info = undefined
+var nodes = commissioningController.getCommissionedNodes();
+var conn = await commissioningController.connectNode(nodes[1])    
+var devices = conn.getDevices()
+var clc = devices[0].getClusterClientById(69)
+
+clc.addOnOffAttributeListener(value => {
+    console.log("subscription onOffStatus", value);
+})
+
+clc.addStateChangeEventListener (value => {
+    console.log("subscription StateChange", value);
+})

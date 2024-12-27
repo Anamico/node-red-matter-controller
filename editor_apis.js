@@ -1,4 +1,6 @@
 const {commandOptions, attributeOptions} = require('./utils')
+const { BasicInformationCluster } = require( "@matter/main/clusters");
+const os = require('os');
 
 
 module.exports =  function(RED) {
@@ -113,6 +115,22 @@ RED.httpAdmin.get('/_mattercontroller/:cid/device/:did/cluster/:clid/attributes_
                 }
             })
             res.send(response)
+        })
+    }
+    else {
+        res.sendStatus(404);  
+    }
+})
+
+// List Events
+RED.httpAdmin.get('/_mattercontroller/:cid/device/:did/cluster/:clid/events', RED.auth.needsPermission('admin.write'), function(req,res){
+    let ctrl_node = RED.nodes.getNode(req.params.cid)
+    if (ctrl_node){
+        ctrl_node.commissioningController.connectNode(BigInt(req.params.did))
+        .then((conn) => {
+            let d = conn.getDevices()
+            events = d[0].getClusterClientById(Number(req.params.clid)).events
+            res.send(Object.keys(events))
         })
     }
     else {

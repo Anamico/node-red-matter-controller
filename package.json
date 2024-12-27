@@ -34,7 +34,9 @@
       "matter-command": "command.js",
       "matter-readattr": "read_attribute.js",
       "matter-writeattr": "write_attribute.js",
-      "matter-editorapis": "editor_apis.js"
+      "matter-editorapis": "editor_apis.js",
+      "matter-subscribe": "subscribe.js",
+      "matter-event": "event.js"
     }
   }
 }

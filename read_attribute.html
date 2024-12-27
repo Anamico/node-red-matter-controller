@@ -29,11 +29,11 @@
                 setCluster(this.controller, this.device, this.cluster)
             }
             if (this.attr.length != 0){
-                setAttribute(this.controller, this.device, this.cluster, this.attr);
+                setAttribute(this.controller, this.device, this.cluster, this.attr, writable=false);
             } 
             $('#refresh-devices').on("click", getDevices);
             $('#refresh-clusters').on("click", getClusters);
-            $('#refresh-attr').on("click", getAttributes);
+            $('#refresh-attr').on("click", function() { getAttributes(writable=false); } );
 
         },
         oneditsave: function() {
