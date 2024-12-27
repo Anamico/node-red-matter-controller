@@ -67,14 +67,12 @@ module.exports =  function(RED) {
         if (ctrl_node){
             deviceList = {}
             const nodes = ctrl_node.commissioningController.getCommissionedNodes();
-            console.log(nodes)
             nodes.forEach(nodeId => {
                 ctrl_node.commissioningController.connectNode(nodeId)
                 .then((conn) => {
                     info = conn.getRootClusterClient(BasicInformationCluster)
                     info.getNodeLabelAttribute()
                     .then((nodeLabel) => {
-                        console.log(nodeLabel)
                         deviceList[nodeId] = nodeLabel
                         if (Object.keys(deviceList).length == nodes.length){
                             res.send(deviceList)
@@ -126,7 +124,7 @@ module.exports =  function(RED) {
     // Get Command options
     RED.httpAdmin.get('/_mattermodel/cluster/:clid/command/:cmd/options', RED.auth.needsPermission('admin.write'), function(req,res){
             let data = commandOptions(req.params.clid, req.params.cmd)
-            res.send(JSON.stringify(data))
+            res.send(data)
     })
 
     // List Attributes
