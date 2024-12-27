@@ -33,7 +33,8 @@
       "matter-manager": "manager.js",
       "matter-command": "command.js",
       "matter-readattr": "read_attribute.js",
-      "matter-writeattr": "write_attribute.js"
+      "matter-writeattr": "write_attribute.js",
+      "matter-editorapis": "editor_apis.js"
     }
   }
 }
