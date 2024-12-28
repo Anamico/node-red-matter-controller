@@ -20,6 +20,7 @@ module.exports =  function(RED) {
             if (!_method) {
                 _method=config.methodType
             }
+            node.status({fill:"blue",shape:"dot",text:"processing"});
             switch (_method) {
                 case 'commissionDevice':
                     let longDiscriminator = undefined
@@ -31,6 +32,7 @@ module.exports =  function(RED) {
                     } else {
                         pcData = ManualPairingCodeCodec.decode(msg.payload.code);
                     }
+                    console.log(pcData)
                     let options = {
                         commissioning :{
                             regulatoryLocation: 2
@@ -50,27 +52,100 @@ module.exports =  function(RED) {
                             info = conn.getRootClusterClient(BasicInformationCluster)
                             info.setNodeLabelAttribute(msg.payload.label).then(() => {
                                 node.log(`Commissioned ${msg.payload.label} as nodeId ${nodeId}`)
-                                msg.payload = nodeId
-                                node.send()
-                            })
-                            .catch((error) => {node.error(error)})
-                        })
-                        .catch((error) => {node.error(error)})
-                    })
-                    .catch((error) => {node.error(error)})
+                                msg.payload.id = nodeId
+                                node.send(msg)
+                                node.status({})
+                            }).catch((error) => {node.error(error); node.status({})})
+                        }).catch((error) => {node.error(error); node.status({})})
+                    }).catch((error) => {node.error(error); node.status({})})
                     break;
                 case 'decommissionDevice':
-                    break;
-                case 'ping':
+                    node.controller.commissioningController.connectNode(BigInt(msg.payload.id))
+                    .then((conn) => {
+                        info = conn.getRootClusterClient(BasicInformationCluster)
+                        info.getNodeLabelAttribute()
+                        .then((label) => {
+                            RED.comms.publish("matter_notify", `Remember to remove any events and subscriptons for ${label}`);
+                        }).catch((error) => {node.error(error); node.status({})})
+                        .then(() =>{
+                            conn.decommission()
+                            .then(() => {
+                                msg.payload = "Device Removed"
+                                node.send(msg)
+                                node.status({})
+                            })
+                        }).catch((error) => {node.error(error); node.status({})})
+                    }).catch((error) => {node.error(error); node.status({})})
                     break;
                 case 'openCommissioning':
+                    node.controller.commissioningController.connectNode(BigInt(msg.payload.id))
+                    .then((conn) => {
+                        conn.openEnhancedCommissioningWindow()
+                        .then((codes => {
+                            msg.payload = codes
+                            node.send(msg)
+                            node.status({})
+                        })).catch((error) => {node.error(error); node.status({})})
+                    }).catch((error) => {node.error(error); node.status({})})
                     break;
                 case 'getDevice':
+                    node.controller.commissioningController.connectNode(BigInt(msg.payload.id))
+                        .then((conn) => {
+                            info = conn.getRootClusterClient(BasicInformationCluster)
+                            info.getNodeLabelAttribute()
+                            .then((label) => {
+                                msg.payload.label = label
+                            }).catch((error) => {node.error(error); node.status({})})
+                            .then(() => {
+                                info.getProductNameAttribute()
+                                .then((name) => {
+                                    msg.payload.productName = name
+                                })
+                            }).catch((error) => {node.error(error); node.status({})})
+                            .then(() => {
+                                info.getVendorNameAttribute()
+                                .then((vendor) => {
+                                    msg.payload.vendorName = vendor
+                                })
+                            }).catch((error) => {node.error(error); node.status({})})
+                            .then(() => {
+                                info.getSerialNumberAttribute()
+                                .then((serial) => {
+                                    msg.payload.serialNumber = serial
+                                })
+                            }).catch((error) => {node.error(error); node.status({})})
+                            .then(() => {
+                                node.send(msg)
+                                node.status({})
+                            })
+                            .catch((error) => {node.error(error); node.status({})})
+                        })
+                        .catch((error) => {node.error(error); node.status({})})
+                    break
+                case 'listDevices':
+                    let nodeIds = node.controller.commissioningController.getCommissionedNodes()
+                    msg.payload = nodeIds
+                    node.send(msg)
+                    node.status({})
+                    break
+                case 'renameDevice':
+                    node.controller.commissioningController.connectNode(BigInt(msg.payload.id))
+                        .then((conn) => {
+                            info = conn.getRootClusterClient(BasicInformationCluster)
+                            info.setNodeLabelAttribute(msg.payload.label).then(() => {
+                                node.log(`Renamed ${msg.payload.id} as  ${msg.payload.label}`)
+                                node.send(msg)
+                                node.status({})
+                            })
+                            .catch((error) => {node.error(error); node.status({})})
+                        })
+                        .catch((error) => {node.error(error); node.status({})})
                     break
                 default:
                     node.error(`Unknown Method ${_method}`)
                     break;
             }
+            
         })
     }
     

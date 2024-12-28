@@ -12,7 +12,7 @@
             methodType: {value: 'commisionDevice'}
         },
         label: function() {
-            return this.name||"Device Management";
+            return this.name|| this.method;
         },
         paletteLabel: "Device Management",
         oneditprepare: function() {
@@ -27,14 +27,19 @@
             types: [
                 makeTypedInputOpt('Commission', 'commissionDevice'),
                 makeTypedInputOpt('Decommission', 'decommissionDevice'),
-                makeTypedInputOpt('Ping', 'ping'),
                 makeTypedInputOpt('Open Commisioning Window', 'openCommissioning'),
-                makeTypedInputOpt('Get', 'getDevice')
+                makeTypedInputOpt('List Devices', 'listDevices'),
+                makeTypedInputOpt('Get Device', 'getDevice'),
+                makeTypedInputOpt('Rename', 'renameDevice')
             ],
             typeField: $('#node-input-methodType')
             });
         }
     });
+
+    RED.comms.subscribe("matter_notify", function (topic, payload) {
+        RED.notify(payload, { type: "warning", timeout: 5000 })
+    })
 </script>
 
 <script type="text/x-red" data-template-name="mattermanager">

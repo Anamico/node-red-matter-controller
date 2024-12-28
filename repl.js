@@ -25,16 +25,12 @@ let longDiscriminator = undefined
 let shortDiscriminator = undefined
 
 
-info = undefined
 var nodes = commissioningController.getCommissionedNodes();
-var conn = await commissioningController.connectNode(nodes[1])    
+var conn = await commissioningController.connectNode(BigInt("8541378685384770194"))    
 var devices = conn.getDevices()
+var info = conn.getRootClusterClient(BasicInformationCluster)
 var clc = devices[0].getClusterClientById(69)
 
-clc.addOnOffAttributeListener(value => {
-    console.log("subscription onOffStatus", value);
-})
 
-clc.addStateChangeEventListener (value => {
-    console.log("subscription StateChange", value);
-})
+
+
