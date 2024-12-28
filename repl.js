@@ -26,10 +26,10 @@ let shortDiscriminator = undefined
 
 
 var nodes = commissioningController.getCommissionedNodes();
-var conn = await commissioningController.connectNode(BigInt("8541378685384770194"))    
+var conn = await commissioningController.connectNode(nodes[0])    
 var devices = conn.getDevices()
 var info = conn.getRootClusterClient(BasicInformationCluster)
-var clc = devices[0].getClusterClientById(69)
+var clc = devices[0].getClusterClientById(6)
 
 
 

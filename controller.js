@@ -36,8 +36,7 @@ module.exports =  function(RED) {
         node.commissioningController = new CommissioningController({
             environment: {
                 environment,
-                //id: node.id
-                id: 'controller-9999'
+                id: node.id
             },
             autoConnect: false,
         })
