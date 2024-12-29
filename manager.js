@@ -17,6 +17,10 @@ module.exports =  function(RED) {
         node.controller = RED.nodes.getNode(config.controller);
         this.on('input', function(msg) {
             _method = RED.util.evaluateNodeProperty(config.method, config.methodType, node, msg);
+            _code = RED.util.evaluateNodeProperty(config.code, config.codeType, node, msg);
+            _id = RED.util.evaluateNodeProperty(config.deviceid, config.deviceidType, node, msg);
+            _label = RED.util.evaluateNodeProperty(config.label, config.labelType, node, msg);
+
             if (!_method) {
                 _method=config.methodType
             }
@@ -28,9 +32,9 @@ module.exports =  function(RED) {
                     let re = new RegExp("MT:.*")
                     let pcData
                     if (re.test(msg.payload.code)) {
-                        pcData = QrPairingCodeCodec.decode(msg.payload.code)[0]
+                        pcData = QrPairingCodeCodec.decode(_code)[0]
                     } else {
-                        pcData = ManualPairingCodeCodec.decode(msg.payload.code);
+                        pcData = ManualPairingCodeCodec.decode(_code);
                     }
                     console.log(pcData)
                     let options = {
@@ -50,9 +54,10 @@ module.exports =  function(RED) {
                         node.controller.commissioningController.connectNode(nodeId)
                         .then((conn) => {
                             info = conn.getRootClusterClient(BasicInformationCluster)
-                            info.setNodeLabelAttribute(msg.payload.label).then(() => {
-                                node.log(`Commissioned ${msg.payload.label} as nodeId ${nodeId}`)
+                            info.setNodeLabelAttribute(_label).then(() => {
+                                node.log(`Commissioned ${_label} as nodeId ${nodeId}`)
                                 msg.payload.id = nodeId
+                                msg.payload.label = _label
                                 node.send(msg)
                                 node.status({})
                             }).catch((error) => {node.error(error); node.status({})})
@@ -60,7 +65,7 @@ module.exports =  function(RED) {
                     }).catch((error) => {node.error(error); node.status({})})
                     break;
                 case 'decommissionDevice':
-                    node.controller.commissioningController.connectNode(BigInt(msg.payload.id))
+                    node.controller.commissioningController.connectNode(BigInt(_id))
                     .then((conn) => {
                         info = conn.getRootClusterClient(BasicInformationCluster)
                         info.getNodeLabelAttribute()
@@ -78,7 +83,7 @@ module.exports =  function(RED) {
                     }).catch((error) => {node.error(error); node.status({})})
                     break;
                 case 'openCommissioning':
-                    node.controller.commissioningController.connectNode(BigInt(msg.payload.id))
+                    node.controller.commissioningController.connectNode(BigInt(_id))
                     .then((conn) => {
                         conn.openEnhancedCommissioningWindow()
                         .then((codes => {
@@ -89,7 +94,7 @@ module.exports =  function(RED) {
                     }).catch((error) => {node.error(error); node.status({})})
                     break;
                 case 'getDevice':
-                    node.controller.commissioningController.connectNode(BigInt(msg.payload.id))
+                    node.controller.commissioningController.connectNode(BigInt(_id))
                         .then((conn) => {
                             info = conn.getRootClusterClient(BasicInformationCluster)
                             info.getNodeLabelAttribute()
@@ -129,11 +134,11 @@ module.exports =  function(RED) {
                     node.status({})
                     break
                 case 'renameDevice':
-                    node.controller.commissioningController.connectNode(BigInt(msg.payload.id))
+                    node.controller.commissioningController.connectNode(BigInt(_id))
                         .then((conn) => {
                             info = conn.getRootClusterClient(BasicInformationCluster)
-                            info.setNodeLabelAttribute(msg.payload.label).then(() => {
-                                node.log(`Renamed ${msg.payload.id} as  ${msg.payload.label}`)
+                            info.setNodeLabelAttribute(_label).then(() => {
+                                node.log(`Renamed ${msg.payload.id} as  ${_label}`)
                                 node.send(msg)
                                 node.status({})
                             })

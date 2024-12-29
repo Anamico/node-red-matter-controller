@@ -9,7 +9,12 @@
             name: {value:""},
             controller: { value: "", type: "mattercontroller", required: true },
             method: {value:""},
-            methodType: {value: 'commisionDevice'}
+            code: {value:""},
+            codeType: {value: 'str'},
+            deviceid: {value:""},
+            deviceidType: {value: 'str'},
+            label: {value:""},
+            labelType: {value: 'str'},
         },
         label: function() {
             return this.name|| this.method;
@@ -23,16 +28,17 @@
                     hasValue: false
                 }
             }
-            $('#node-input-method').typedInput({
-            types: [
-                makeTypedInputOpt('Commission', 'commissionDevice'),
-                makeTypedInputOpt('Decommission', 'decommissionDevice'),
-                makeTypedInputOpt('Open Commisioning Window', 'openCommissioning'),
-                makeTypedInputOpt('List Devices', 'listDevices'),
-                makeTypedInputOpt('Get Device', 'getDevice'),
-                makeTypedInputOpt('Rename', 'renameDevice')
-            ],
-            typeField: $('#node-input-methodType')
+            $('#node-input-code').typedInput({
+                types: ['str', 'msg', 'flow', 'global', 'jsonata', 'env'],
+                typeField: $('#node-input-codeType')
+            });
+            $('#node-input-deviceid').typedInput({
+                types: ['str', 'msg', 'flow', 'global', 'jsonata', 'env'],
+                typeField: $('#node-input-deviceidType')
+            });
+            $('#node-input-label').typedInput({
+                types: ['str', 'msg', 'flow', 'global', 'jsonata', 'env'],
+                typeField: $('#node-input-lablelType')
             });
         }
     });
@@ -53,15 +59,96 @@
     </div>
     <div class="form-row">
         <label for="node-input-method">Method</label>
-        <input type="hidden" id="node-input-methodType">
-        <input type="text" id="node-input-method" placeholder="Method">
+        <select type="text" id="node-input-method" style="width:70%;" onchange="toggleMethod(this.value)">
+            <option value="commissionDevice">Commission</option>
+            <option value="decommissionDevice">Decommission</option>
+            <option value="openCommissioning">Open Commisioning Window</option>
+            <option value="listDevices">List Devices</option>
+            <option value="getDevice">Get Devices</option>
+            <option value="renameDevice">Rename Device</option>
+        </select>
     </div>
+    <div class="form-row" id="node-matter-code">
+        <label for="node-input-code">Pairing Code</label>
+        <input type="hidden" id="node-input-codeType">
+        <input type="text" id="node-input-code">
+    </div>
+    <div class="form-row" id="node-matter-deviceid">
+        <label for="node-input-deviceid">Device ID</label>
+        <input type="hidden" id="node-input-deviceidType">
+        <input type="text" id="node-input-deviceid">
+    </div>
+    <div class="form-row" id="node-matter-label">
+        <label for="node-input-label">Device Label</label>
+        <input type="hidden" id="node-input-labelType">
+        <input type="text" id="node-input-label">
+    </div>   
+</script>
 
-   
+<script>
+    function toggleMethod(method) {
+        switch (method) {
+            case 'commissionDevice':
+                document.getElementById("node-matter-code").style.display = "block";
+                document.getElementById("node-matter-deviceid").style.display = "none";
+                document.getElementById("node-matter-label").style.display = "block";
+            break;
+            case 'decommissionDevice':
+                document.getElementById("node-matter-code").style.display = "none";
+                document.getElementById("node-matter-deviceid").style.display = "block";
+                document.getElementById("node-matter-label").style.display = "none";
+            break;
+            case 'openCommissioning':
+                document.getElementById("node-matter-code").style.display = "none";
+                document.getElementById("node-matter-deviceid").style.display = "block";
+                document.getElementById("node-matter-label").style.display = "none";
+            break;
+            case 'listDevices':
+                document.getElementById("node-matter-code").style.display = "none";
+                document.getElementById("node-matter-deviceid").style.display = "none";
+                document.getElementById("node-matter-label").style.display = "none";
+            break;
+            case 'getDevice':
+                document.getElementById("node-matter-code").style.display = "none";
+                document.getElementById("node-matter-deviceid").style.display = "block";
+                document.getElementById("node-matter-label").style.display = "none";
+            break;
+            case 'renameDevice':
+                document.getElementById("node-matter-code").style.display = "none";
+                document.getElementById("node-matter-deviceid").style.display = "block";
+                document.getElementById("node-matter-label").style.display = "block";
+            break;        
+            default:
+                document.getElementById("node-matter-code").style.display = "none";
+                document.getElementById("node-matter-deviceid").style.display = "none";
+                document.getElementById("node-matter-label").style.display = "none";
+            break;
+        }   
+    }
 </script>
 
 <script type="text/x-red" data-help-name="mattermanager">
     <p>Manage Devices</p>
+    Multiple functions to manage adding/removing devices from your controller 
 
+    <h3>Details</h3>
+    This node provides multiple functions for managing devices,
+    <ul>
+        <li>You can commision a device into your controller by sending in the pairing code and a label, this will output the device ID</li>
+        <li>You can list the IDs of all devices in your controller</li>
+        <li>You can get information about a specific device ID</li>
+        <li>You can rename the label for a device</li>
+        <li>You can decommsion(remove) a device from the controller</li>
+    </ul>
 
+    <dl class="message-properties">
+        <dt class="optional">Device ID<span class="property-type">string </span></dt>
+        <dd> The ID of the Device to manage, for Get, Rename or Decommission </dd>
+        
+        <dt class="optional">Code<span class="property-type">string </span></dt>
+        <dd> The pairing code when commisioning a device, either a 11/21 digit number or a decoded QR code with the MT: prefix </dd>
+
+        <dt class="optional">Label<span class="property-type">string </span></dt>
+        <dd> The label to use for a device when commisioning or renaming </dd>
+    </dl>
 </script>
