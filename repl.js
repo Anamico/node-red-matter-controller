@@ -21,8 +21,33 @@ const commissioningController = new CommissioningController({
 });
 
 await commissioningController.start();
-let longDiscriminator = undefined
-let shortDiscriminator = undefined
+
+async function commissionDevice(pc){
+    let re = new RegExp("MT:.*")
+    let pcData
+    if (re.test(pc)) {
+        pcData = QrPairingCodeCodec.decode(pc)[0]
+    } else {
+        pcData = ManualPairingCodeCodec.decode(pc);
+    }
+    let options = {
+        commissioning :{
+            regulatoryLocation: 2
+        },
+        discovery: {
+            identifierData:
+                 { shortDiscriminator : pcData.shortDiscriminator } ,
+            discoveryCapabilities: {
+                ble : false,
+            },
+        },
+        passcode: pcData.passcode,
+    }
+        const nodeId = await commissioningController.commissionNode(options);
+        console.log(`Commissioning successfully done with nodeId ${nodeId}`);
+}
+
+
 
 
 var nodes = commissioningController.getCommissionedNodes();
