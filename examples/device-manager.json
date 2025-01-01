@@ -1,0 +1,330 @@
+[
+    {
+        "id": "e2ae0245a019e034",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "1845cfe2678b0cea",
+        "type": "inject",
+        "z": "e2ae0245a019e034",
+        "name": "Code & Label",
+        "props": [
+            {
+                "p": "payload.code",
+                "v": "36146912243",
+                "vt": "str"
+            },
+            {
+                "p": "payload.label",
+                "v": "LaptopBridge",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 170,
+        "y": 360,
+        "wires": [
+            [
+                "604020bb8744961e"
+            ]
+        ]
+    },
+    {
+        "id": "efd85dd2ed6feb95",
+        "type": "debug",
+        "z": "e2ae0245a019e034",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 640,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "604020bb8744961e",
+        "type": "mattermanager",
+        "z": "e2ae0245a019e034",
+        "name": "Commision Device",
+        "controller": "24cb35c0870756c1",
+        "method": "commissionDevice",
+        "code": "payload.code",
+        "codeType": "msg",
+        "deviceid": "",
+        "deviceidType": "str",
+        "label": "payload.label",
+        "labelType": "msg",
+        "x": 370,
+        "y": 360,
+        "wires": [
+            [
+                "efd85dd2ed6feb95"
+            ]
+        ]
+    },
+    {
+        "id": "d29f21b7d4db0551",
+        "type": "inject",
+        "z": "e2ae0245a019e034",
+        "name": "",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 150,
+        "y": 420,
+        "wires": [
+            [
+                "f3f28beae04d841d"
+            ]
+        ]
+    },
+    {
+        "id": "f3f28beae04d841d",
+        "type": "mattermanager",
+        "z": "e2ae0245a019e034",
+        "name": "List Devices",
+        "controller": "24cb35c0870756c1",
+        "method": "listDevices",
+        "code": "",
+        "codeType": "str",
+        "deviceid": "",
+        "deviceidType": "str",
+        "label": "",
+        "labelType": "",
+        "x": 350,
+        "y": 420,
+        "wires": [
+            [
+                "ff0ea4741553af5e"
+            ]
+        ]
+    },
+    {
+        "id": "ff0ea4741553af5e",
+        "type": "debug",
+        "z": "e2ae0245a019e034",
+        "name": "debug 7",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 640,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "c7a410d3da50def2",
+        "type": "inject",
+        "z": "e2ae0245a019e034",
+        "name": "",
+        "props": [
+            {
+                "p": "payload.id",
+                "v": "5294526207847625479",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 150,
+        "y": 600,
+        "wires": [
+            [
+                "5b82c55e93df3da6"
+            ]
+        ]
+    },
+    {
+        "id": "5b82c55e93df3da6",
+        "type": "mattermanager",
+        "z": "e2ae0245a019e034",
+        "name": "Remove  Device",
+        "controller": "24cb35c0870756c1",
+        "method": "decommissionDevice",
+        "code": "",
+        "codeType": "str",
+        "deviceid": "payload.id",
+        "deviceidType": "msg",
+        "label": "",
+        "labelType": "",
+        "x": 360,
+        "y": 600,
+        "wires": [
+            [
+                "d614d218f441959e"
+            ]
+        ]
+    },
+    {
+        "id": "d614d218f441959e",
+        "type": "debug",
+        "z": "e2ae0245a019e034",
+        "name": "debug 8",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 640,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "5c997c48c5730e11",
+        "type": "inject",
+        "z": "e2ae0245a019e034",
+        "name": "",
+        "props": [
+            {
+                "p": "payload.id",
+                "v": "3418228787271691840",
+                "vt": "str"
+            },
+            {
+                "p": "payload.label",
+                "v": "Button",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 150,
+        "y": 540,
+        "wires": [
+            [
+                "ce16f69c32e6180a"
+            ]
+        ]
+    },
+    {
+        "id": "ce16f69c32e6180a",
+        "type": "mattermanager",
+        "z": "e2ae0245a019e034",
+        "name": "Rename Device",
+        "controller": "24cb35c0870756c1",
+        "method": "renameDevice",
+        "code": "",
+        "codeType": "str",
+        "deviceid": "payload.id",
+        "deviceidType": "msg",
+        "label": "payload.label",
+        "labelType": "msg",
+        "x": 360,
+        "y": 540,
+        "wires": [
+            [
+                "7b0e705743cd509c"
+            ]
+        ]
+    },
+    {
+        "id": "7b0e705743cd509c",
+        "type": "debug",
+        "z": "e2ae0245a019e034",
+        "name": "debug 9",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 640,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "a672ce7c2d76c6be",
+        "type": "debug",
+        "z": "e2ae0245a019e034",
+        "name": "debug 10",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 640,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "9b9faf489726dc70",
+        "type": "inject",
+        "z": "e2ae0245a019e034",
+        "name": "",
+        "props": [
+            {
+                "p": "payload.id",
+                "v": "7455765432451654642-1",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 150,
+        "y": 480,
+        "wires": [
+            [
+                "f74c6223d527a1ca"
+            ]
+        ]
+    },
+    {
+        "id": "f74c6223d527a1ca",
+        "type": "mattermanager",
+        "z": "e2ae0245a019e034",
+        "name": "Get  Device",
+        "controller": "24cb35c0870756c1",
+        "method": "getDevice",
+        "code": "",
+        "codeType": "str",
+        "deviceid": "payload.id",
+        "deviceidType": "msg",
+        "label": "",
+        "labelType": "",
+        "x": 350,
+        "y": 480,
+        "wires": [
+            [
+                "a672ce7c2d76c6be"
+            ]
+        ]
+    },
+    {
+        "id": "24cb35c0870756c1",
+        "type": "mattercontroller",
+        "networkInterface": "en1",
+        "logLevel": "ERROR"
+    }
+]
