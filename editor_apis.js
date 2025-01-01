@@ -27,14 +27,41 @@ RED.httpAdmin.get('/_mattercontroller/:id/devices/', RED.auth.needsPermission('a
         nodes.forEach(nodeId => {
             ctrl_node.commissioningController.connectNode(nodeId)
             .then((conn) => {
-                info = conn.getRootClusterClient(BasicInformationCluster)
-                info.getNodeLabelAttribute()
-                .then((nodeLabel) => {
-                    deviceList[nodeId] = nodeLabel
-                    if (Object.keys(deviceList).length == nodes.length){
-                        res.send(deviceList)
-                    }    
-                })
+                let endpoints = conn.getDevices()
+                if (endpoints.length == 1) {  //Simple Device OR Bridge
+                    if (endpoints[0].deviceType == 14) { //Bridge
+                        endpoints[0].childEndpoints.forEach((ep) => {
+                            bridgedinfo = ep.getClusterClientById(57)
+                            bridgedinfo.getNodeLabelAttribute()
+                            .then((nodeLabel) => {
+                                deviceList[`${nodeId}-${ep.number}`] = nodeLabel
+                            })
+                        })
+
+                    } else { //Simple Device
+                        info = conn.getRootClusterClient(BasicInformationCluster)
+                        info.getNodeLabelAttribute()
+                        ep = endpoints[0]
+                        .then((nodeLabel) => {
+                            deviceList[`${nodeId}-${ep.number}`] = nodeLabel
+                            if (Object.keys(deviceList).length == nodes.length){
+                                res.send(deviceList)
+                            }    
+                        })
+                    }
+                } else { //Composed Device
+                    info = conn.getRootClusterClient(BasicInformationCluster)
+                        info.getNodeLabelAttribute()
+                        .then((nodeLabel) => {
+                            endpoints.forEach((ep) => {
+                                let name = ep.name.split('-')[1]
+                                deviceList[`${nodeId}-${ep.number}`] = `${nodeLabel}-${name}`
+                            })
+                            if (Object.keys(deviceList).length == nodes.length){
+                                res.send(deviceList)
+                            }    
+                        })
+                }
             })
         })
     }
@@ -46,11 +73,13 @@ RED.httpAdmin.get('/_mattercontroller/:id/devices/', RED.auth.needsPermission('a
 // List Clusters
 RED.httpAdmin.get('/_mattercontroller/:cid/device/:did/clusters', RED.auth.needsPermission('admin.write'), function(req,res){
     let ctrl_node = RED.nodes.getNode(req.params.cid)
+    let nodeID = BigInt(req.params.did.split('-')[0])
+    let ep = Number(req.params.did.split('-')[1]) || 0
     if (ctrl_node){
-        ctrl_node.commissioningController.connectNode(BigInt(req.params.did))
+        ctrl_node.commissioningController.connectNode(nodeID)
         .then((conn) => {
             let d = conn.getDevices()
-            let cl = d[0].getAllClusterClients()
+            let cl = d[ep].getAllClusterClients()
             clusterList = {}
             cl.forEach((c) => {
                 clusterList[c.id] = c.name
@@ -65,11 +94,13 @@ RED.httpAdmin.get('/_mattercontroller/:cid/device/:did/clusters', RED.auth.needs
 // List Commands
 RED.httpAdmin.get('/_mattercontroller/:cid/device/:did/cluster/:clid/commands', RED.auth.needsPermission('admin.write'), function(req,res){
     let ctrl_node = RED.nodes.getNode(req.params.cid)
+    let nodeID = BigInt(req.params.did.split('-')[0])
+    let ep = Number(req.params.did.split('-')[1]) || 0
     if (ctrl_node){
-        ctrl_node.commissioningController.connectNode(BigInt(req.params.did))
+        ctrl_node.commissioningController.connectNode(nodeID)
         .then((conn) => {
             let d = conn.getDevices()
-            cmds = d[0].getClusterClientById(Number(req.params.clid)).commands
+            cmds = d[ep].getClusterClientById(Number(req.params.clid)).commands
             res.send(Object.keys(cmds))
         })
     }
@@ -87,11 +118,13 @@ RED.httpAdmin.get('/_mattermodel/cluster/:clid/command/:cmd/options', RED.auth.n
 // List Attributes
 RED.httpAdmin.get('/_mattercontroller/:cid/device/:did/cluster/:clid/attributes', RED.auth.needsPermission('admin.write'), function(req,res){
     let ctrl_node = RED.nodes.getNode(req.params.cid)
+    let nodeID = BigInt(req.params.did.split('-')[0])
+    let ep = Number(req.params.did.split('-')[1]) || 0
     if (ctrl_node){
-        ctrl_node.commissioningController.connectNode(BigInt(req.params.did))
+        ctrl_node.commissioningController.connectNode(nodeID)
         .then((conn) => {
             let d = conn.getDevices()
-            atrs = d[0].getClusterClientById(Number(req.params.clid)).attributes
+            atrs = d[ep].getClusterClientById(Number(req.params.clid)).attributes
             res.send(Object.keys(atrs))
         })
     }
@@ -102,12 +135,13 @@ RED.httpAdmin.get('/_mattercontroller/:cid/device/:did/cluster/:clid/attributes'
 
 // List Writable Attributes
 RED.httpAdmin.get('/_mattercontroller/:cid/device/:did/cluster/:clid/attributes_writable', RED.auth.needsPermission('admin.write'), function(req,res){
-    let ctrl_node = RED.nodes.getNode(req.params.cid)
+    let nodeID = BigInt(req.params.did.split('-')[0])
+    let ep = Number(req.params.did.split('-')[1]) || 0
     if (ctrl_node){
-        ctrl_node.commissioningController.connectNode(BigInt(req.params.did))
+        ctrl_node.commissioningController.connectNode(nodeID)
         .then((conn) => {
             let d = conn.getDevices()
-            atrs = d[0].getClusterClientById(Number(req.params.clid)).attributes
+            atrs = d[ep].getClusterClientById(Number(req.params.clid)).attributes
             let response = []
             Object.keys(atrs).forEach((k) => {
                 if (atrs[k].attribute.writable) {
@@ -124,12 +158,13 @@ RED.httpAdmin.get('/_mattercontroller/:cid/device/:did/cluster/:clid/attributes_
 
 // List Events
 RED.httpAdmin.get('/_mattercontroller/:cid/device/:did/cluster/:clid/events', RED.auth.needsPermission('admin.write'), function(req,res){
-    let ctrl_node = RED.nodes.getNode(req.params.cid)
+    let nodeID = BigInt(req.params.did.split('-')[0])
+    let ep = Number(req.params.did.split('-')[1]) || 0
     if (ctrl_node){
-        ctrl_node.commissioningController.connectNode(BigInt(req.params.did))
+        ctrl_node.commissioningController.connectNode(nodeID)
         .then((conn) => {
             let d = conn.getDevices()
-            events = d[0].getClusterClientById(Number(req.params.clid)).events
+            events = d[ep].getClusterClientById(Number(req.params.clid)).events
             res.send(Object.keys(events))
         })
     }

@@ -16,11 +16,13 @@ module.exports =  function(RED) {
         var node = this;
         node.controller = RED.nodes.getNode(config.controller);
         this.on('input', function(msg) {
+            _bridge = false
             _method = RED.util.evaluateNodeProperty(config.method, config.methodType, node, msg);
             _code = RED.util.evaluateNodeProperty(config.code, config.codeType, node, msg);
-            _id = RED.util.evaluateNodeProperty(config.deviceid, config.deviceidType, node, msg);
+            _deviceid = RED.util.evaluateNodeProperty(config.deviceid, config.deviceidType, node, msg);
+            _id = _deviceid.split('-')[0]
+            _ep = _deviceid.split('-')[1] //|| 1 //Default to EP 1
             _label = RED.util.evaluateNodeProperty(config.label, config.labelType, node, msg);
-
             if (!_method) {
                 _method=config.methodType
             }
@@ -136,13 +138,26 @@ module.exports =  function(RED) {
                 case 'renameDevice':
                     node.controller.commissioningController.connectNode(BigInt(_id))
                         .then((conn) => {
-                            info = conn.getRootClusterClient(BasicInformationCluster)
-                            info.setNodeLabelAttribute(_label).then(() => {
+                            let endpoints = conn.getDevices()
+                            if (endpoints[0].deviceType == 14) { //Bridge
+                                ep = conn.getDeviceByID(_ep)
+                                bridgedinfo = ep.getClusterClientById(57)
+                                bridgedinfo.setNodeLabelAttribute(_label).then(() => {
+                                    node.log(`Renamed ${msg.payload.id} as  ${_label}`)
+                                    node.send(msg)
+                                    node.status({})
+                                })
+                                .catch((error) => {node.error(error); node.status({})})
+                            } else { //Not Bridge
+                                info = conn.getRootClusterClient(BasicInformationCluster)
+                                info.setNodeLabelAttribute(_label).then(() => {
                                 node.log(`Renamed ${msg.payload.id} as  ${_label}`)
                                 node.send(msg)
                                 node.status({})
-                            })
-                            .catch((error) => {node.error(error); node.status({})})
+                                })
+                                .catch((error) => {node.error(error); node.status({})})
+                            }
+                            
                         })
                         .catch((error) => {node.error(error); node.status({})})
                     break

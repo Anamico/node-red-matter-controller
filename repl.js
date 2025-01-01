@@ -1,5 +1,5 @@
 var { Environment, Logger, singleton, StorageService, Time } = await import( "@matter/main");
-var { BasicInformationCluster, DescriptorCluster, GeneralCommissioning, OnOff, LevelControl} = await import( "@matter/main/clusters");
+var { BasicInformationCluster, DescriptorCluster, GeneralCommissioning, OnOff, LevelControl, BridgedDeviceBasicInformationCluster} = await import( "@matter/main/clusters");
 var { ClusterClientObj, ControllerCommissioningFlowOptions } = await import("@matter/main/protocol") 
 var { ManualPairingCodeCodec, QrPairingCodeCodec, NodeId } = await import("@matter/main/types")
 
@@ -53,8 +53,13 @@ async function commissionDevice(pc){
 var nodes = commissioningController.getCommissionedNodes();
 var conn = await commissioningController.connectNode(nodes[0])    
 var devices = conn.getDevices()
+
 var info = conn.getRootClusterClient(BasicInformationCluster)
-var clc = devices[0].getClusterClientById(6)
+var descriptor = conn.getRootClusterClient(DescriptorCluster);
+var parts = await descriptor.attributes.partsList.get()
+var agg = devices[0]
+
+
 
 
 
