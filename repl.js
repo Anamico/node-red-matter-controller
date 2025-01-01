@@ -15,7 +15,7 @@ Logger.defaultLogLevel = 4;
 const commissioningController = new CommissioningController({
     environment: {
         environment,
-        id: "24cb35c0870756c1",
+        id: "controller-9999",
     },
     autoConnect: true,
 });
