@@ -15,7 +15,7 @@ Logger.defaultLogLevel = 4;
 const commissioningController = new CommissioningController({
     environment: {
         environment,
-        id: "controller-9999",
+        id: "24cb35c0870756c1",
     },
     autoConnect: true,
 });
@@ -51,13 +51,11 @@ async function commissionDevice(pc){
 
 
 var nodes = commissioningController.getCommissionedNodes();
-var conn = await commissioningController.connectNode(nodes[0])    
+var conn = await commissioningController.connectNode(nodes[2])    
 var devices = conn.getDevices()
-
 var info = conn.getRootClusterClient(BasicInformationCluster)
 var descriptor = conn.getRootClusterClient(DescriptorCluster);
 var parts = await descriptor.attributes.partsList.get()
-var agg = devices[0]
 
 
 

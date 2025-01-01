@@ -12,8 +12,8 @@ module.exports =  function(RED) {
         node.cluster = Number(config.cluster)
         node.attr = cap(config.attr)
         this.on('input', function(msg) {
-            node.controller.commissioningController.connectNode(node._id).then((device) => {
-                const ep = device.getDeviceById(node._ep)
+            node.controller.commissioningController.connectNode(node._id).then((conn) => {
+                const ep = conn.getDeviceById(Number(node._ep))
                 const clc = ep.getClusterClientById(Number(node.cluster))               
                 try {
                     let command = eval(`clc.get${node.attr}Attribute`)

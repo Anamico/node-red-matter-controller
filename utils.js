@@ -54,4 +54,40 @@ function attributeOptions(clusterID, attributeName){
     return data
 }
 
+// Functions to update the simples lists
+function listClusters(){
+    Models.MatterModel.standard.clusters.forEach((cl) => {
+    console.log(`"${cl.id}", // ${cl.name}`)
+    })
+}
+
+function getCommands(clusterList){
+    simpleCommands = {}
+    clusterList.forEach((clusterID) => {
+        simpleCommands[clusterID] = []
+        clusterName = Models.MatterModel.standard.get(Models.ClusterModel, Number(clusterID)).name
+        cluster = eval('Models.'+clusterName)
+        cluster.commands.forEach((cmd, i) => {
+            simpleCommands[clusterID].push(deCap(cmd.name))
+        })
+    })
+    return simpleCommands
+
+}
+
+function getAttributes(clusterList){
+    simpleAttributes = {}
+    clusterList.forEach((clusterID) => {
+        simpleAttributes[clusterID] = []
+        clusterName = Models.MatterModel.standard.get(Models.ClusterModel, Number(clusterID)).name
+        cluster = eval('Models.'+clusterName)
+        cluster.attributes.forEach((attr, i) => {
+            simpleAttributes[clusterID].push(deCap(attr.name))
+        })
+    })
+    return simpleAttributes
+
+}
+
+
 module.exports = {commandOptions, attributeOptions, deCap, cap}

@@ -13,8 +13,8 @@ module.exports =  function(RED) {
         node.attr = cap(config.attr)
         this.on('input', function(msg) {
             _data = RED.util.evaluateNodeProperty(config.data, config.dataType, node, msg);
-            node.controller.commissioningController.connectNode(node.device).then((device) => {
-                const ep = device.getDeviceById(node._ep)
+            node.controller.commissioningController.connectNode(node.device).then((conn) => {
+                const ep = conn.getDeviceById(Number(node._ep))
                 const clc = ep.getClusterClientById(Number(node.cluster))               
                 try {
                     let command = eval(`clc.set${node.attr}Attribute`)

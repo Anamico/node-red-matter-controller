@@ -15,8 +15,8 @@ module.exports =  function(RED) {
         
         function subscribe(node){
             node.controller.commissioningController.connectNode(node._id)
-            .then((device) => {
-                const ep = device.getDeviceById(node._ep)
+            .then((conn) => {
+                const ep = conn.getDeviceById(Number(node._ep))
                 const clc = ep.getClusterClientById(Number(node.cluster))        
                 let command = eval(`clc.add${node.event}EventListener`)
                 command(value => {

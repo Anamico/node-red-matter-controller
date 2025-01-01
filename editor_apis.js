@@ -1,7 +1,8 @@
 const {commandOptions, attributeOptions} = require('./utils')
 const { BasicInformationCluster } = require( "@matter/main/clusters");
 const os = require('os');
-
+let listComplete = false
+let deviceList = {}
 
 module.exports =  function(RED) {
 
@@ -21,8 +22,9 @@ RED.httpAdmin.get('/_mattercontroller/interfaces', RED.auth.needsPermission('adm
 // List Devices
 RED.httpAdmin.get('/_mattercontroller/:id/devices/', RED.auth.needsPermission('admin.write'), function(req,res){
     let ctrl_node = RED.nodes.getNode(req.params.id)
+    listComplete = false
+    deviceList = {}
     if (ctrl_node){
-        deviceList = {}
         const nodes = ctrl_node.commissioningController.getCommissionedNodes();
         nodes.forEach(nodeId => {
             ctrl_node.commissioningController.connectNode(nodeId)
@@ -37,16 +39,15 @@ RED.httpAdmin.get('/_mattercontroller/:id/devices/', RED.auth.needsPermission('a
                                 deviceList[`${nodeId}-${ep.number}`] = nodeLabel
                             })
                         })
+                        listComplete = true
 
                     } else { //Simple Device
                         info = conn.getRootClusterClient(BasicInformationCluster)
-                        info.getNodeLabelAttribute()
                         ep = endpoints[0]
+                        info.getNodeLabelAttribute()
                         .then((nodeLabel) => {
                             deviceList[`${nodeId}-${ep.number}`] = nodeLabel
-                            if (Object.keys(deviceList).length == nodes.length){
-                                res.send(deviceList)
-                            }    
+                            listComplete = true
                         })
                     }
                 } else { //Composed Device
@@ -57,29 +58,37 @@ RED.httpAdmin.get('/_mattercontroller/:id/devices/', RED.auth.needsPermission('a
                                 let name = ep.name.split('-')[1]
                                 deviceList[`${nodeId}-${ep.number}`] = `${nodeLabel}-${name}`
                             })
-                            if (Object.keys(deviceList).length == nodes.length){
-                                res.send(deviceList)
-                            }    
+                            listComplete = true
                         })
                 }
             })
         })
+        listReadytoSend(res)
+        
     }
     else {
         res.sendStatus(404);  
     }
 
 })
+function listReadytoSend(res) {
+    if (!listComplete) {
+      setTimeout(listReadytoSend, 100, res)
+    } else {
+        res.send(deviceList)
+    }
+}
+
 // List Clusters
 RED.httpAdmin.get('/_mattercontroller/:cid/device/:did/clusters', RED.auth.needsPermission('admin.write'), function(req,res){
     let ctrl_node = RED.nodes.getNode(req.params.cid)
     let nodeID = BigInt(req.params.did.split('-')[0])
-    let ep = Number(req.params.did.split('-')[1]) || 0
+    let epID = Number(req.params.did.split('-')[1]) 
     if (ctrl_node){
         ctrl_node.commissioningController.connectNode(nodeID)
         .then((conn) => {
-            let d = conn.getDevices()
-            let cl = d[ep].getAllClusterClients()
+            let ep = conn.getDeviceById(epID)
+            let cl = ep.getAllClusterClients()
             clusterList = {}
             cl.forEach((c) => {
                 clusterList[c.id] = c.name
@@ -95,12 +104,12 @@ RED.httpAdmin.get('/_mattercontroller/:cid/device/:did/clusters', RED.auth.needs
 RED.httpAdmin.get('/_mattercontroller/:cid/device/:did/cluster/:clid/commands', RED.auth.needsPermission('admin.write'), function(req,res){
     let ctrl_node = RED.nodes.getNode(req.params.cid)
     let nodeID = BigInt(req.params.did.split('-')[0])
-    let ep = Number(req.params.did.split('-')[1]) || 0
+    let epID = Number(req.params.did.split('-')[1]) 
     if (ctrl_node){
         ctrl_node.commissioningController.connectNode(nodeID)
         .then((conn) => {
-            let d = conn.getDevices()
-            cmds = d[ep].getClusterClientById(Number(req.params.clid)).commands
+            let ep = conn.getDeviceById(epID)
+            cmds = ep.getClusterClientById(Number(req.params.clid)).commands
             res.send(Object.keys(cmds))
         })
     }
@@ -119,12 +128,12 @@ RED.httpAdmin.get('/_mattermodel/cluster/:clid/command/:cmd/options', RED.auth.n
 RED.httpAdmin.get('/_mattercontroller/:cid/device/:did/cluster/:clid/attributes', RED.auth.needsPermission('admin.write'), function(req,res){
     let ctrl_node = RED.nodes.getNode(req.params.cid)
     let nodeID = BigInt(req.params.did.split('-')[0])
-    let ep = Number(req.params.did.split('-')[1]) || 0
+    let epID = Number(req.params.did.split('-')[1])
     if (ctrl_node){
         ctrl_node.commissioningController.connectNode(nodeID)
         .then((conn) => {
-            let d = conn.getDevices()
-            atrs = d[ep].getClusterClientById(Number(req.params.clid)).attributes
+            let ep = conn.getDeviceById(epID)
+            atrs = ep.getClusterClientById(Number(req.params.clid)).attributes
             res.send(Object.keys(atrs))
         })
     }
@@ -135,13 +144,14 @@ RED.httpAdmin.get('/_mattercontroller/:cid/device/:did/cluster/:clid/attributes'
 
 // List Writable Attributes
 RED.httpAdmin.get('/_mattercontroller/:cid/device/:did/cluster/:clid/attributes_writable', RED.auth.needsPermission('admin.write'), function(req,res){
+    let ctrl_node = RED.nodes.getNode(req.params.cid)
     let nodeID = BigInt(req.params.did.split('-')[0])
-    let ep = Number(req.params.did.split('-')[1]) || 0
+    let epID = Number(req.params.did.split('-')[1])
     if (ctrl_node){
         ctrl_node.commissioningController.connectNode(nodeID)
         .then((conn) => {
-            let d = conn.getDevices()
-            atrs = d[ep].getClusterClientById(Number(req.params.clid)).attributes
+            let ep = conn.getDeviceById(epID)
+            atrs = ep.getClusterClientById(Number(req.params.clid)).attributes
             let response = []
             Object.keys(atrs).forEach((k) => {
                 if (atrs[k].attribute.writable) {
@@ -158,13 +168,14 @@ RED.httpAdmin.get('/_mattercontroller/:cid/device/:did/cluster/:clid/attributes_
 
 // List Events
 RED.httpAdmin.get('/_mattercontroller/:cid/device/:did/cluster/:clid/events', RED.auth.needsPermission('admin.write'), function(req,res){
+    let ctrl_node = RED.nodes.getNode(req.params.cid)
     let nodeID = BigInt(req.params.did.split('-')[0])
-    let ep = Number(req.params.did.split('-')[1]) || 0
+    let epID = Number(req.params.did.split('-')[1]) || 0
     if (ctrl_node){
         ctrl_node.commissioningController.connectNode(nodeID)
         .then((conn) => {
-            let d = conn.getDevices()
-            events = d[ep].getClusterClientById(Number(req.params.clid)).events
+            let ep = conn.getDeviceById(epID)
+            events = ep.getClusterClientById(Number(req.params.clid)).events
             res.send(Object.keys(events))
         })
     }

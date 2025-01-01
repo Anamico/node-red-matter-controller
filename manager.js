@@ -140,7 +140,7 @@ module.exports =  function(RED) {
                         .then((conn) => {
                             let endpoints = conn.getDevices()
                             if (endpoints[0].deviceType == 14) { //Bridge
-                                ep = conn.getDeviceByID(_ep)
+                                ep = conn.getDeviceById(Number(_ep))
                                 bridgedinfo = ep.getClusterClientById(57)
                                 bridgedinfo.setNodeLabelAttribute(_label).then(() => {
                                     node.log(`Renamed ${msg.payload.id} as  ${_label}`)
