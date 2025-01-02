@@ -1,6 +1,6 @@
 {
   "name": "@sammachin/node-red-matter-controller",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Matter Device Controller for Node-RED",
   "main": "index.js",
   "scripts": {
@@ -11,7 +11,7 @@
     "url": "git+https://github.com/sammachin/node-red-matter-controller.git"
   },
   "keywords": [
-    "Node-RED"
+    "node-red"
   ],
   "author": "Sam Machin",
   "license": "MIT",
