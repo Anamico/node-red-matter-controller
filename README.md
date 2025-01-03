@@ -18,11 +18,13 @@ This controller exposes a lower level of Matter compared to most consumer system
 ### Device Setup
 In order to start using the controller you will need to be able to commision a device,
 Use the `Device Management` node with the Method set to `Commission Device`
+
 ![alt text](images/image-1.png)
 
 You will need to configure a controller config  node from this which will be the base for all nodes.
 It is not reccomended to use more than one controller on the same machine.
 The network interface should be set to whichever interface your machine has on the same network as the Matter devices. Because Matter uses mDNS to discover devices on the network it will not work across different subnets without additional network configuration.
+
 ![alt text](images/image.png)
 
 This Device Management node will expect 2 values to be sent to it in order to commision the device.
@@ -62,7 +64,9 @@ Then select the device you want to control and click the refresh to populate the
 Select the cluster and then click the next refresh to see the commands on that cluster.
 
 At the bottom of the command node configuration is a text box with another refresh icon, this will show you a hint as to what parameters the node requires. This is meant to be a 'hint' for the exact details consult the matter specs.
+
 ![alt text](images/image-2.png)
+
 You can either set the parameters as a JSON object in the node or use a TypedInput option to read from the input, eg msg.payload.
 
 Once configured the command node is triggered by sending it an input msg.
