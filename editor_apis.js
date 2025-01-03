@@ -16,7 +16,10 @@ RED.httpAdmin.get('/_mattercontroller/interfaces', RED.auth.needsPermission('adm
                 output.push(i)
         }
     }
-    res.send(output)
+    uniqueOutput = output.filter(function(elem, pos) {
+        return output.indexOf(elem) == pos;
+    })
+    res.send(uniqueOutput)
 })
 
 // List Devices
