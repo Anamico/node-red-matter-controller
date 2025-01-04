@@ -38,14 +38,17 @@ module.exports =  function(RED) {
                     } else {
                         pcData = ManualPairingCodeCodec.decode(_code);
                     }
-                    console.log(pcData)
                     let options = {
                         commissioning :{
                             regulatoryLocation: 2
                         },
                         discovery: {
                             identifierData:
-                                { shortDiscriminator : pcData.shortDiscriminator } ,
+                                pcData.discriminator !== undefined
+                                ? { longDiscriminator : pcData.discriminator }
+                                : shortDiscriminator !== undefined
+                                  ? { shortDiscriminator :  pcData.shortDiscriminator }
+                                  : {},
                             discoveryCapabilities: {
                                 ble : false,
                             },
