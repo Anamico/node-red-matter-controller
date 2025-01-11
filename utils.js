@@ -45,7 +45,7 @@ function attributeOptions(clusterID, attributeName){
     cluster.attributes.forEach((attr, i) => {
         if (attr.name == cap(attributeName)){
             data.name = attr.name
-            data.defaut = attr.default || ''
+            data.default = attr.default || ''
             data.constraint = attr.constraint || ''
             data.type = attr.type
             data.details = attr.details || ''

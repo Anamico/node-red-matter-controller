@@ -15,8 +15,8 @@
             cluster: {value:""},
             attr: {value:""},
             simpleMode: {value: "true"},
-            data: {value:"{}"},
-            dataType: {value:""},
+            data: {value:""},
+            dataType: {value:""}
         },
         paletteLabel: "Write Attribute",
         label: function() {
@@ -25,9 +25,10 @@
         },
         oneditprepare: function() {
             $('#node-input-data').typedInput({
-                types: ['str', 'int', 'bool', 'json', 'msg', 'flow', 'global', 'jsonata', 'env'],
+                types: ['str', 'num', 'msg', 'flow', 'global', 'jsonata', 'env'],
                 typeField: $('#node-input-dataType')
             });
+
             if (this.device.length != 0){
                 setDevice(this.controller, this.device)
             } 
@@ -36,7 +37,8 @@
             }
             if (this.attr.length != 0){
                 setAttribute(this.controller, this.device, this.cluster, this.attr, writable=true);
-            } 
+            }
+
             $('#refresh-devices').on("click", getDevices);
             $('#refresh-clusters').on("click", getClusters);
             $('#refresh-attr').on("click", function() { getAttributes(writable=true); } );
@@ -89,9 +91,10 @@
         <a id="refresh-attr" class="btn"><i class="fa fa-refresh"></i></a>
     </div>
     <div class="form-row">
-        <label for="node-input-data">Param</label>
+        <label for="node-input-data">Params</label>
         <input type="hidden" id="node-input-dataType">
         <input type="text" id="node-input-data">
+
         <div class="form-tips" style="width:90%;">
             <b>Param Info</b>&nbsp;
             <a id="refresh-sample" class="btn"><i class="fa fa-refresh"></i></a>

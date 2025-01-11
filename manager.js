@@ -20,8 +20,8 @@ module.exports =  function(RED) {
             _method = RED.util.evaluateNodeProperty(config.method, config.methodType, node, msg);
             _code = RED.util.evaluateNodeProperty(config.code, config.codeType, node, msg);
             _deviceid = RED.util.evaluateNodeProperty(config.deviceid, config.deviceidType, node, msg);
-            _id = _deviceid.split('-')[0]
-            _ep = _deviceid.split('-')[1] //|| 1 //Default to EP 1
+            _id = _deviceid.toString().split('-')[0]
+            _ep = _deviceid.toString().split('-')[1] //|| 1 //Default to EP 1
             _label = RED.util.evaluateNodeProperty(config.label, config.labelType, node, msg);
             if (!_method) {
                 _method=config.methodType
@@ -33,11 +33,12 @@ module.exports =  function(RED) {
                     let shortDiscriminator = undefined
                     let re = new RegExp("MT:.*")
                     let pcData
-                    if (re.test(msg.payload.code)) {
+                    if (re.test(_code)) {
                         pcData = QrPairingCodeCodec.decode(_code)[0]
                     } else {
                         pcData = ManualPairingCodeCodec.decode(_code);
                     }
+                    node.debug(pcData)
                     let options = {
                         commissioning :{
                             regulatoryLocation: 2
@@ -61,6 +62,7 @@ module.exports =  function(RED) {
                             info = conn.getRootClusterClient(BasicInformationCluster)
                             info.setNodeLabelAttribute(_label).then(() => {
                                 node.log(`Commissioned ${_label} as nodeId ${nodeId}`)
+                                if (typeof(msg.payload) != 'object') {msg.payload = {}}
                                 msg.payload.id = nodeId
                                 msg.payload.label = _label
                                 node.send(msg)
@@ -101,6 +103,8 @@ module.exports =  function(RED) {
                 case 'getDevice':
                     node.controller.commissioningController.connectNode(BigInt(_id))
                         .then((conn) => {
+                            if (typeof(msg.payload) != 'object') {msg.payload = {}}
+                            msg.payload.id = _id
                             info = conn.getRootClusterClient(BasicInformationCluster)
                             info.getNodeLabelAttribute()
                             .then((label) => {
@@ -146,7 +150,10 @@ module.exports =  function(RED) {
                                 ep = conn.getDeviceById(Number(_ep))
                                 bridgedinfo = ep.getClusterClientById(57)
                                 bridgedinfo.setNodeLabelAttribute(_label).then(() => {
-                                    node.log(`Renamed ${msg.payload.id} as  ${_label}`)
+                                    node.log(`Renamed ${_id} as  ${_label}`)
+                                    if (typeof(msg.payload) != 'object') {msg.payload = {}}
+                                    msg.payload.id = _id
+                                    msg.payload.label = _label
                                     node.send(msg)
                                     node.status({})
                                 })
@@ -154,7 +161,10 @@ module.exports =  function(RED) {
                             } else { //Not Bridge
                                 info = conn.getRootClusterClient(BasicInformationCluster)
                                 info.setNodeLabelAttribute(_label).then(() => {
-                                node.log(`Renamed ${msg.payload.id} as  ${_label}`)
+                                node.log(`Renamed ${_id} as ${_label}`)
+                                if (typeof(msg.payload) != 'object') {msg.payload = {}}
+                                msg.payload.id = _id
+                                msg.payload.label = _label
                                 node.send(msg)
                                 node.status({})
                                 })
