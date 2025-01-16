@@ -12,7 +12,12 @@ module.exports =  function(RED) {
         node.cluster = Number(config.cluster)
         node.attr = cap(config.attr)
         this.on('input', function(msg) {
-            _data = RED.util.evaluateNodeProperty(config.data, config.dataType, node, msg);
+            if (config.dataType == 'null'){
+                _data = null
+            } else {
+                _data = RED.util.evaluateNodeProperty(config.data, config.dataType, node, msg);
+            }
+            
             node.controller.commissioningController.connectNode(node._id).then((conn) => {
                 const ep = conn.getDeviceById(Number(node._ep))
                 const clc = ep.getClusterClientById(Number(node.cluster))               
