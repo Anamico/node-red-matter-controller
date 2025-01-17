@@ -11,7 +11,14 @@ module.exports =  function(RED) {
         node.cluster = Number(config.cluster)
         node.command = config.command
         this.on('input', function(msg) {
-            _data = RED.util.evaluateNodeProperty(config.data, config.dataType, node, msg);
+            let _data
+            RED.util.evaluateNodeProperty(config.data, config.dataType, node, msg, (err, result) => {
+                if (err) {
+                    node.error(err)
+                } else {
+                    _data = result
+                }
+            })
             node.controller.commissioningController.connectNode(node._id)
             .then((conn) => {
                 const ep = conn.getDeviceById(Number(node._ep))

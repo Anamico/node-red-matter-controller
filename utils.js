@@ -89,5 +89,20 @@ function getAttributes(clusterList){
 
 }
 
+function resolveTyped(RED, data, dataType, node, msg){
+    return new Promise(function(resolve, reject) {
+        if  (dataType == 'null'){
+           resolve(null)
+        } else {
+            RED.util.evaluateNodeProperty(data, dataType, node, msg, (err, result) => {
+                if (err) {reject(err) } 
+                else {
+                    resolve(result)
+                }
+             })
+        }
+        
+    })
+}
 
-module.exports = {commandOptions, attributeOptions, deCap, cap}
+module.exports = {commandOptions, attributeOptions, deCap, cap, resolveTyped}

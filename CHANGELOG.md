@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.1.5] - 2025-01-16
+
+### Fixed
+The typedInput fields in Device Management and Write attribute now use a callback (wrapped in a promise) for compatibility with NodeRed 4.0
+
+### Added
+Added a new typedInput of null to the write attribute widget params field, this will allow you to set an attribute back to null after its been initially set.
+
 ## [0.1.4] - 2025-01-1
 
 ### Fixed

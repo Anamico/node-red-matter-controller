@@ -3,6 +3,7 @@ const { BasicInformationCluster, DescriptorCluster, GeneralCommissioning, OnOff 
 const { nodeId } = require("@matter/main/model");
 const { ClusterClientObj, ControllerCommissioningFlowOptions } = require("@matter/main/protocol") 
 const { ManualPairingCodeCodec, QrPairingCodeCodec, NodeId } = require("@matter/main/types")
+const {resolveTyped} = require('./utils')
 
 
 //Some parts of the controller are still in the legacy packages
@@ -17,15 +18,25 @@ module.exports =  function(RED) {
         node.controller = RED.nodes.getNode(config.controller);
         this.on('input', function(msg) {
             _bridge = false
-            _method = RED.util.evaluateNodeProperty(config.method, config.methodType, node, msg);
-            _code = RED.util.evaluateNodeProperty(config.code, config.codeType, node, msg);
-            _deviceid = RED.util.evaluateNodeProperty(config.deviceid, config.deviceidType, node, msg);
-            _id = _deviceid.toString().split('-')[0]
-            _ep = _deviceid.toString().split('-')[1] //|| 1 //Default to EP 1
-            _label = RED.util.evaluateNodeProperty(config.label, config.labelType, node, msg);
-            if (!_method) {
-                _method=config.methodType
-            }
+            resolveTyped(RED, config.method, config.methodType, node, msg)
+            .then((r) => {
+                _method = r
+                if (!_method) {
+                    _method=config.methodType
+                }
+            resolveTyped(RED, config.code, config.codeType, node, msg)
+            .then((r) => {
+                _code = r
+            resolveTyped(RED, config.deviceid, config.deviceidType, node, msg)
+            .then((r) => {
+                _deviceid = r
+                _id = _deviceid.toString().split('-')[0]
+                _ep = _deviceid.toString().split('-')[1] //|| 1 //Default to EP 1
+            resolveTyped(RED, config.label, config.labelType, node, msg)
+            .then((r) => {
+               _label = r
+            console.log(_method, _code, _deviceid, _label)
+            // Now that we've resolved all those promises lets actually DO something
             node.status({fill:"blue",shape:"dot",text:"processing"});
             switch (_method) {
                 case 'commissionDevice':
@@ -180,8 +191,11 @@ module.exports =  function(RED) {
             }
             
         })
+        })
+        })
+        })
+        })
     }
-    
     RED.nodes.registerType("mattermanager",MatterManager);
 }
 

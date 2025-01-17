@@ -1,6 +1,6 @@
 {
   "name": "@sammachin/node-red-matter-controller",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Matter Device Controller for Node-RED",
   "main": "index.js",
   "scripts": {

@@ -1,4 +1,4 @@
-const {cap} = require('./utils')
+const {cap, resolveTyped} = require('./utils')
 
 
 
@@ -12,27 +12,27 @@ module.exports =  function(RED) {
         node.cluster = Number(config.cluster)
         node.attr = cap(config.attr)
         this.on('input', function(msg) {
-            if (config.dataType == 'null'){
-                _data = null
-            } else {
-                _data = RED.util.evaluateNodeProperty(config.data, config.dataType, node, msg);
-            }
-            
-            node.controller.commissioningController.connectNode(node._id).then((conn) => {
-                const ep = conn.getDeviceById(Number(node._ep))
-                const clc = ep.getClusterClientById(Number(node.cluster))               
-                try {
-                    let command = eval(`clc.set${node.attr}Attribute`)
-                    command(_data)
-                    .then((attr_resp) => {
-                        node.log(attr_resp)
-                        msg.payload = 'ok'
-                        node.send(msg)
-                    })
-                    .catch((e) => node.error(e))
-                } catch (error) {
-                    node.error(error)
-                }
+            resolveTyped(RED, config.data, config.dataType, node, msg)
+            .then((_data) => {
+                node.controller.commissioningController.connectNode(node._id).then((conn) => {
+                    const ep = conn.getDeviceById(Number(node._ep))
+                    const clc = ep.getClusterClientById(Number(node.cluster))               
+                    try {
+                        let command = eval(`clc.set${node.attr}Attribute`)
+                        command(_data)
+                        .then((attr_resp) => {
+                            node.log(attr_resp)
+                            msg.payload = 'ok'
+                            node.send(msg)
+                        })
+                        .catch((e) => node.error(e))
+                    } catch (error) {
+                        node.error(error)
+                    }
+                })
+            })
+            .catch((e) => {
+                node.error(e)
             })
         })
     }   
