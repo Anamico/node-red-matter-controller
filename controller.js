@@ -15,6 +15,7 @@ module.exports =  function(RED) {
         var node = this;
         node.started = false
         node.networkInterface = config.networkInterface 
+        node.storageLocation = config.storageLocation
         switch (config.logLevel) {
             case "FATAL":
                 Logger.defaultLogLevel = 5;
@@ -33,6 +34,14 @@ module.exports =  function(RED) {
                 break;
         }
         Environment.default.vars.set('mdns.networkInterface', node.networkInterface);
+        let ss = environment.get(StorageService);
+        if (node.storageLocation){
+            ss.location = node.storageLocation;
+            environment.set(StorageService, ss)
+            node.log(`Using Custom Storage Location: ${ss.location}`)
+        } else {
+            node.log(`Using Default Storage Location: ${ss.location}`)
+        }
         node.commissioningController = new CommissioningController({
             environment: {
                 environment,

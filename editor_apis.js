@@ -192,4 +192,10 @@ RED.httpAdmin.get('/_mattermodel/cluster/:clid/attribute/:attr/options', RED.aut
     let data = attributeOptions(req.params.clid, req.params.attr)
     res.send(data)
 })
+
+RED.httpAdmin.get('/_mattercontroller/homedir', RED.auth.needsPermission('admin.write'), function(req,res){
+    const homedir = require('os').homedir();
+    res.send(homedir)
+})
+
 }

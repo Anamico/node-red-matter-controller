@@ -14,6 +14,13 @@ If the device uses Thread rather than WiFi then it will be using the Thread Bord
 
 This controller exposes a lower level of Matter compared to most consumer systems (eg Apple, Google etc) This is to allow for support of all possible device types without requiring a vast number of nodes and options to be created. Eventually I may create additional nodes for specific device control if there is demand.
 
+### Storage Location
+
+Matter.js requires a persistant file store to keep detauls of the fabric configuration, keys, device IDs etc. By default this is in a .matter folder in the users home dir.
+From v.0.1.6 this path is configurable, so if running Node-RED under Docker you will need to set this to a path backed by persistant storage (eg /data)
+
+You Should set this path _before_ you start commisioning any devices as changing it with existing devices can cause a crash. However if you want to move the location from the default to a new path you should stop node red and then move all the files in ~/.matter to the new location. Then start Node-RED and edit the location in the controller config node.
+
 
 ### Device Setup
 In order to start using the controller you will need to be able to commision a device,
