@@ -12,6 +12,9 @@ module.exports =  function(RED) {
         node.command = config.command
         this.on('input', function(msg) {
             let _data
+            if (!node.controller.started) { // race condition workaround
+                return
+            }
             RED.util.evaluateNodeProperty(config.data, config.dataType, node, msg, (err, result) => {
                 if (err) {
                     node.error(err)
