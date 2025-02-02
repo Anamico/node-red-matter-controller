@@ -11,6 +11,9 @@ module.exports =  function(RED) {
         node.cluster = Number(config.cluster)
         this.on('input', function(msg) {
             let _data
+            if (!node.controller.started) { // race condition workaround
+                return
+            }
             node.command = msg.command || config.command
             if (msg.command) {
                 delete msg.command
